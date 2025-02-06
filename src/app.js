@@ -27,14 +27,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/public", express.static(path.public));
 
 //ROUTERS
-app.use("/api/auth", authRoutes)
+//app.use("/api/auth", authRoutes)
 
 // Integración de Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 //database
-sequelize.sync({ alter: true }).then(() => console.log("Base de datos sincronizada"));
+//sequelize.sync({ alter: true }).then(() => console.log("Base de datos sincronizada"));
 
 // Ruta de prueba
 app.get("/", (req, res) => successResponse(res, SUCCESS.SERVER_RUNNING))
