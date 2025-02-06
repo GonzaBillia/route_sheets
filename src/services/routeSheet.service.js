@@ -86,11 +86,11 @@ export const updateRouteSheetState = async (id, newStateData) => {
     throw { status: 400, message: ERROR.MISSING_FIELDS || "El campo estado_id es obligatorio" };
   }
   // Ejemplo de lógica para actualizar timestamps según el nuevo estado.
-  // Supongamos: 1 = "creado", 2 = "sent", 3 = "received".
-  if (newStateData.estado_id === 2 && !routeSheet.sent_at) {
+  // Supongamos: 1 = "creado", 3 = "sent", 4 = "received".
+  if (newStateData.estado_id === 3 && !routeSheet.sent_at) {
     newStateData.sent_at = new Date();
   }
-  if (newStateData.estado_id === 3 && !routeSheet.received_at) {
+  if (newStateData.estado_id === 4 && !routeSheet.received_at) {
     newStateData.received_at = new Date();
   }
   await routeSheet.update(newStateData);

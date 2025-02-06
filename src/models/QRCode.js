@@ -6,22 +6,14 @@ class QRCode extends Model {}
 
 QRCode.init(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+    // Usamos "codigo" como primary key en lugar de un id autoincremental
+    codigo: {
+      type: DataTypes.STRING(12),
       primaryKey: true
-    },
-    codigo_deposito: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    tipo_bulto: {
-      type: DataTypes.STRING(50),
-      allowNull: false
     },
     qr_base64: {
       type: DataTypes.TEXT,
-      allowNull: true  // Campo opcional para almacenar la imagen en Base64
+      allowNull: true
     },
     bulto_id: {
       type: DataTypes.INTEGER,
@@ -31,6 +23,16 @@ QRCode.init(
         key: 'id'
       },
       onDelete: 'SET NULL'
+    },
+    // En lugar de "tipo_bulto", ahora referenciamos el id de la tabla TiposBulto
+    tipo_bulto_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'TiposBulto',
+        key: 'id'
+      },
+      onDelete: 'RESTRICT'
     }
   },
   {

@@ -1,35 +1,32 @@
-// models/Deposito.js
+// models/TiposBulto.js
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database.js';
 
-class Deposito extends Model {}
+class TiposBulto extends Model {}
 
-Deposito.init(
+TiposBulto.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    codigo: {
-      type: DataTypes.STRING(4),
-      allowNull: false
-    },
     nombre: {
       type: DataTypes.STRING(100),
       allowNull: false
     },
-    ubicacion: {
-      type: DataTypes.STRING(255),
-      allowNull: true
+    codigo: {
+      type: DataTypes.STRING(4),
+      allowNull: false,
+      unique: true
     }
   },
   {
     sequelize,
-    modelName: 'Deposito',
-    tableName: 'Deposito',
+    modelName: 'TiposBulto',
+    tableName: 'TiposBulto',
     timestamps: false
   }
 );
 
-export default Deposito;
+export default TiposBulto;
