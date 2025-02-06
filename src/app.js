@@ -18,6 +18,7 @@ import obsRoutes from "./routes/observation.routes.js"
 import roleRoutes from "./routes/role.routes.js"
 import estadoRoutes from "./routes/estado.routes.js"
 import routeSheetRoutes from "./routes/routeSheet.routes.js"
+import QRCodeRoutes from "./routes/qrcode.routes.js"
 
 // Cargar variables de entorno
 dotenv.config();
@@ -47,6 +48,7 @@ app.use("/api/obs", obsRoutes)
 app.use("/api/role", roleRoutes)
 app.use("/api/estado", estadoRoutes)
 app.use("/api/route-sheet", routeSheetRoutes)
+app.use("/api/qr-code", QRCodeRoutes)
 
 // Integración de Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
