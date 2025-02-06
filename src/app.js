@@ -7,6 +7,7 @@ import SUCCESS from "./constants/success.js";
 import ERROR from "./constants/errors.js";
 import { swaggerUi, swaggerSpec } from './config/swagger.js';
 import { errorResponse, successResponse } from "./utils/handlers/responseHandler.js";
+import sequelize from "./config/database.js";
 
 // Cargar variables de entorno
 dotenv.config();
@@ -34,7 +35,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 //database
-//sequelize.sync({ alter: true }).then(() => console.log("Base de datos sincronizada"));
+sequelize.sync({ alter: true }).then(() => console.log("Base de datos sincronizada"));
 
 // Ruta de prueba
 app.get("/", (req, res) => successResponse(res, SUCCESS.SERVER_RUNNING))
