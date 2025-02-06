@@ -9,6 +9,16 @@ import { swaggerUi, swaggerSpec } from './config/swagger.js';
 import { errorResponse, successResponse } from "./utils/handlers/responseHandler.js";
 import sequelize from "./config/database.js";
 
+import authRoutes from "./routes/auth.routes.js"
+import depoRoutes from "./routes/deposito.routes.js"
+import sucuRoutes from "./routes/sucursal.routes.js"
+import remitoRoutes from "./routes/remito.routes.js"
+import repSucRoutes from "./routes/repartidorSucursal.routes.js"
+import obsRoutes from "./routes/observation.routes.js"
+import roleRoutes from "./routes/role.routes.js"
+import estadoRoutes from "./routes/estado.routes.js"
+import routeSheetRoutes from "./routes/routeSheet.routes.js"
+
 // Cargar variables de entorno
 dotenv.config();
 const PORT = process.env.PORT;
@@ -28,7 +38,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/public", express.static(path.public));
 
 //ROUTERS
-//app.use("/api/auth", authRoutes)
+app.use("/api/auth", authRoutes)
+app.use("/api/depo", depoRoutes)
+app.use("/api/sucu", sucuRoutes)
+app.use("/api/remito", remitoRoutes)
+app.use("/api/rep-sucu", repSucRoutes)
+app.use("/api/obs", obsRoutes)
+app.use("/api/role", roleRoutes)
+app.use("/api/estado", estadoRoutes)
+app.use("/api/route-sheet", routeSheetRoutes)
 
 // Integración de Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

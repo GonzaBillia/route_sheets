@@ -17,8 +17,7 @@ Bulto.init(
     },
     codigo: {
       type: DataTypes.STRING(100),
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     route_sheet_id: {
       type: DataTypes.INTEGER,

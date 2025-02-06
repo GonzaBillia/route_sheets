@@ -6,6 +6,10 @@ export const accessMiddleware = (allowedRoles) => {
   return (req, res, next) => {
     const { role } = req.user;
     
+    if (role === "superadmin") {
+      return next();
+    }
+
     // Si el rol del usuario no está en la lista de roles permitidos, se deniega el acceso.
     if (!allowedRoles.includes(role)) {
       return errorResponse(res, ERROR.ROLE_NOT_ALLOWED, 403);
