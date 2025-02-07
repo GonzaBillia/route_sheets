@@ -1,9 +1,9 @@
 // routes/auth.routes.js
 import express from "express";
-import { register, login, logout, getInfo } from "../controllers/auth.controller.js";
+import { register, login, logout, getInfo, getUsers } from "../controllers/auth.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
-import { validate } from "../middleware/validate.middleware.js";
+import { validate } from "../middleware/validate.js";
 import { registerUserSchema } from "../schemas/user.schema.js";
 
 const router = express.Router();
@@ -19,5 +19,7 @@ router.post("/logout", authMiddleware, logout);
 
 // Obtener información del usuario (perfil): Requiere autenticación
 router.get("/me", authMiddleware, getInfo);
+
+router.get("/", authMiddleware, accessMiddleware(["superadmin"]), getUsers);
 
 export default router;

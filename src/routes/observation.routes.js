@@ -9,7 +9,7 @@ import {
 } from "../controllers/observation.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
-import { validate } from "../middleware/validate.middleware.js";
+import { validate } from "../middleware/validate.js";
 import { createObservationSchema, updateObservationSchema } from "../schemas/observation.schema.js";
 
 const router = express.Router();

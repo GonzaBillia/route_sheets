@@ -110,3 +110,8 @@ export const getUserInfo = async (userId) => {
   }
   return user;
 };
+
+export const getAllUsers = async () => {
+  const users = await User.findAll();
+  return users;
+};

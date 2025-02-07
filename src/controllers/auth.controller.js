@@ -1,5 +1,5 @@
 // controllers/auth.controller.js
-import { registerUser, loginUser, getUserInfo } from "../services/auth.service.js";
+import { registerUser, loginUser, getUserInfo, getAllUsers } from "../services/auth.service.js";
 import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
 import SUCCESS from "../constants/success.js";
 import ERROR from "../constants/errors.js";
@@ -85,3 +85,18 @@ export const getInfo = asyncHandler(async (req, res) => {
     return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
   }
 });
+
+export const getUsers = asyncHandler(async (req, res) => {
+  if (!req.cookies.token || !req.user) {
+    return errorResponse(res, ERROR.TOKEN_MISSING, 401);
+  }
+  
+  try {
+    // Obtener la información completa del usuario desde el servicio, 
+    // usando el id del usuario en req.user
+    const users = await getAllUsers();
+    return successResponse(res, SUCCESS.DATA_RETRIEVED, users);
+  } catch (error) {
+    return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+  }
+})

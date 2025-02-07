@@ -9,7 +9,7 @@ import {
 } from "../controllers/role.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
-import { validate } from "../middleware/validate.middleware.js";
+import { validate } from "../middleware/validate.js";
 import { createRoleSchema, updateRoleSchema } from "../schemas/role.schema.js";
 
 const router = express.Router();

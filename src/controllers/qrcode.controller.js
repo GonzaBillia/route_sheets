@@ -1,6 +1,6 @@
 // controllers/qrcode.controller.js
 import {
-    createQRCode,
+    generateBatchQRCodes,
     getQRCodeById,
     getAllQRCodes,
     updateQRCode,
@@ -14,8 +14,23 @@ import {
   // Crear un nuevo código QR
   export const createQRCodeController = asyncHandler(async (req, res) => {
     try {
-      const qrCode = await createQRCode(req.body);
-      return successResponse(res, SUCCESS.DATA_CREATED, qrCode, 201);
+      const {
+        codigo_deposito: depositCode,
+        deposito_id: depositId,
+        tipo_bulto: tipoBultoCode,
+        tipo_bulto_id: tipoBultoId,
+        cantidad: quantity
+      } = req.body;
+  
+      // Se pasan los parámetros con los nombres que espera la función generateBatchQRCodes.
+      const qrCodes = await generateBatchQRCodes({
+        depositCode,
+        depositId,
+        tipoBultoCode,
+        tipoBultoId,
+        quantity
+      });
+      return successResponse(res, SUCCESS.DATA_CREATED, qrCodes, 201);
     } catch (error) {
       return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
     }

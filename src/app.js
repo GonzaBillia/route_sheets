@@ -19,6 +19,7 @@ import roleRoutes from "./routes/role.routes.js"
 import estadoRoutes from "./routes/estado.routes.js"
 import routeSheetRoutes from "./routes/routeSheet.routes.js"
 import QRCodeRoutes from "./routes/qrcode.routes.js"
+import TiposBultoRoutes from "./routes/tiposBulto.routes.js"
 
 // Cargar variables de entorno
 dotenv.config();
@@ -49,6 +50,7 @@ app.use("/api/role", roleRoutes)
 app.use("/api/estado", estadoRoutes)
 app.use("/api/route-sheet", routeSheetRoutes)
 app.use("/api/qr-code", QRCodeRoutes)
+app.use("/api/tipos-bulto", TiposBultoRoutes)
 
 // Integración de Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
