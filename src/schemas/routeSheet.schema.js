@@ -23,7 +23,6 @@ export const createRouteSheetSchema = Joi.object({
   // Los siguientes campos son opcionales
   repartidor_id: Joi.number().integer().optional(),
   sucursal_id: Joi.number().integer().optional(),
-  total_bultos: Joi.number().integer().optional(),
   remito_id: Joi.number().integer().optional()
 });
 
@@ -39,12 +38,14 @@ export const updateRouteSheetSchema = Joi.object({
   created_by: Joi.number().integer().optional(),
   repartidor_id: Joi.number().integer().optional(),
   sucursal_id: Joi.number().integer().optional(),
-  total_bultos: Joi.number().integer().optional(),
   remito_id: Joi.number().integer().optional()
 });
 
 // Esquema para actualizar solo el estado (para repartidor o sucursal)
 export const updateRouteSheetStateSchema = Joi.object({
+  codigo: Joi.string().max(20).optional().messages({
+    "string.max": "El código debe tener máximo 20 caracteres"
+  }),
   estado_id: Joi.number().integer().required().messages({
     "number.base": "El estado_id debe ser un número",
     "any.required": "El estado_id es obligatorio"

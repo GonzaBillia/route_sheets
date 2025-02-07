@@ -49,11 +49,6 @@ RouteSheet.init(
       type: DataTypes.INTEGER,
       allowNull: true
     },
-    total_bultos: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0
-    },
     remito_id: {
       type: DataTypes.INTEGER,
       allowNull: true

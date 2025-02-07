@@ -2,11 +2,6 @@
 import Joi from "joi";
 
 export const createBultoSchema = Joi.object({
-  tipo: Joi.string().max(50).required().messages({
-    "string.empty": "El tipo es obligatorio",
-    "any.required": "El tipo es obligatorio",
-    "string.max": "El tipo debe tener máximo 50 caracteres"
-  }),
   codigo: Joi.string().max(100).required().messages({
     "string.empty": "El código es obligatorio",
     "any.required": "El código es obligatorio",
@@ -19,9 +14,6 @@ export const createBultoSchema = Joi.object({
 });
 
 export const updateBultoSchema = Joi.object({
-  tipo: Joi.string().max(50).optional().messages({
-    "string.max": "El tipo debe tener máximo 50 caracteres"
-  }),
   codigo: Joi.string().max(100).optional().messages({
     "string.max": "El código debe tener máximo 100 caracteres"
   }),

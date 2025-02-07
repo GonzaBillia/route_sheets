@@ -1,5 +1,5 @@
 // services/repartidorSucursal.service.js
-import RepartidorSucursal from "../models/RepartidorSucursal.js";
+import {RepartidorSucursal} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

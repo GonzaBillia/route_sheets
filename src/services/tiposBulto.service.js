@@ -1,5 +1,5 @@
 // services/tiposBulto.service.js
-import TiposBulto from "../models/TiposBulto.js";
+import {TiposBulto} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

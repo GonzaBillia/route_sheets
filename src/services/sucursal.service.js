@@ -1,5 +1,5 @@
 // services/sucursal.service.js
-import Sucursal from "../models/Sucursal.js";
+import {Sucursal} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

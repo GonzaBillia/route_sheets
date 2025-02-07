@@ -1,5 +1,5 @@
 // services/estado.service.js
-import Estado from "../models/Estado.js";
+import {Estado} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

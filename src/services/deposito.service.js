@@ -1,5 +1,5 @@
 // services/deposito.service.js
-import Deposito from "../models/Deposito.js";
+import {Deposito} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

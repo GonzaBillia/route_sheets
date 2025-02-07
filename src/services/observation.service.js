@@ -1,5 +1,5 @@
 // services/observation.service.js
-import Observation from "../models/Observation.js";
+import {Observation} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

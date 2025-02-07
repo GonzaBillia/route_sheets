@@ -9,6 +9,8 @@ import Remito from './Remito.js';
 import Bulto from './Bulto.js';
 import Observation from './Observation.js';
 import RouteSheet from './RouteSheet.js';
+import QRCode from './QRCode.js';
+import TiposBulto from './TiposBulto.js';
 
 // Asociaciones de Users
 User.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
@@ -45,6 +47,17 @@ Observation.belongsTo(RouteSheet, { foreignKey: 'route_sheet_id', as: 'routeShee
 Observation.belongsTo(Sucursal, { foreignKey: 'sucursal_id', as: 'sucursal' });
 Sucursal.hasMany(Observation, { foreignKey: 'sucursal_id', as: 'observaciones' });
 
+// Relaciones para QRCode y TiposBulto
+
+// QRCode tiene una clave foránea 'tipo_bulto_id' que referencia a TiposBulto.
+QRCode.belongsTo(TiposBulto, { foreignKey: 'tipo_bulto_id', as: 'tipoBulto' });
+// TiposBulto puede tener muchos QRCode asociados.
+TiposBulto.hasMany(QRCode, { foreignKey: 'tipo_bulto_id', as: 'qrcodes' });
+
+// Además, QRCode tiene una relación con Deposito a través de 'deposito_id'.
+QRCode.belongsTo(Deposito, { foreignKey: 'deposito_id', as: 'deposito' });
+
+// Exportar todos los modelos
 export {
   Role,
   Deposito,
@@ -55,5 +68,7 @@ export {
   Remito,
   Bulto,
   Observation,
-  RouteSheet
+  RouteSheet,
+  QRCode,
+  TiposBulto
 };

@@ -1,5 +1,5 @@
 // services/bulto.service.js
-import Bulto from "../models/Bulto.js";
+import {Bulto} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

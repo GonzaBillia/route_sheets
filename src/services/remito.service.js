@@ -1,5 +1,5 @@
 // services/remito.service.js
-import Remito from "../models/Remito.js";
+import {Remito} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

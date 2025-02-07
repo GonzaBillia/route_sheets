@@ -11,10 +11,6 @@ Bulto.init(
       autoIncrement: true,
       primaryKey: true
     },
-    tipo: {
-      type: DataTypes.STRING(50),
-      allowNull: false
-    },
     codigo: {
       type: DataTypes.STRING(100),
       allowNull: false

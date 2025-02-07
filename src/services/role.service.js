@@ -1,5 +1,5 @@
 // services/role.service.js
-import Role from "../models/Role.js";
+import {Role} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**

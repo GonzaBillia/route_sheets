@@ -1,6 +1,6 @@
 // services/qrcode.service.js
 import { Op } from "sequelize";
-import QRCode from "../models/QRCode.js";
+import {QRCode} from "../models/index.models.js";
 import {generateQRCodeWithTextBase64} from "../utils/qrcodeGenerator.js";
 import ERROR from "../constants/errors.js";
 
