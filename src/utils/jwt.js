@@ -11,6 +11,8 @@ export const generateToken = (user) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      deposito_id: user.deposito_id? user.deposito_id : null,
+      sucursal_id: user.sucursal_id? user.sucursal_id : null
     },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN }

@@ -1,5 +1,5 @@
 import sequelize from "../config/database.js";
-import {RouteSheet, Bulto, QRCode } from "../models/index.models.js";
+import {RouteSheet, Bulto, QRCode, Remito } from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**
@@ -78,7 +78,18 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
       routeSheetData.created_by = created_by;
       routeSheetData.deposito_id = deposito_id;
       routeSheetData.created_at = new Date();
-      
+      remito_ext_id = ""
+      if (routeSheetData.remito_id) {
+        // Suponemos que routeSheetData.remito_id es el external_id a crear
+        const newRemito = await Remito.create({ external_id: routeSheetData.remito_id }, { transaction: t });
+        routeSheetData.remito_id = newRemito.id;
+        remito_ext_id = newRemito.external_id
+      } else {
+        // Si remito_id no se envía, lo dejamos como null
+        remito_ext_id = routeSheetData.remito_id
+        routeSheetData.remito_id = null;
+      }
+
       // Generar el código de la hoja de ruta con el formato: 
       // 2 dígitos del depósito, 2 dígitos de la sucursal, 2 dígitos del repartidor, guion y el remito.
       const depositStr = String(deposito_id).padStart(2, '0');

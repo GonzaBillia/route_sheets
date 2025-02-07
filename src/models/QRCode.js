@@ -48,6 +48,12 @@ QRCode.init(
         key: 'id'
       },
       onDelete: 'RESTRICT'
+    },
+    // Nuevo campo created_at para filtrar por fecha de creación
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     }
   },
   {

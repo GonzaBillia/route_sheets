@@ -82,7 +82,9 @@ export const loginUser = async (email, password) => {
     id: user.id,
     name: user.username,
     email: user.email,
-    role: user.role ? user.role.name : null
+    role: user.role ? user.role.name : null,
+    deposito_id: user.deposito_id? user.deposito_id : null,
+    sucursal_id: user.sucursal_id? user.sucursal_id : null
   });
 
   // Crear objeto seguro del usuario (sin contraseña)
@@ -91,8 +93,8 @@ export const loginUser = async (email, password) => {
     username: user.username,
     email: user.email,
     role: user.role ? user.role.name : null,
-    deposito_id: user.deposito_id,
-    sucursal_id: user.sucursal_id
+    deposito_id: user.deposito_id? user.deposito_id : null,
+    sucursal_id: user.sucursal_id? user.sucursal_id : null
   };
 
   return { token, user: safeUser };

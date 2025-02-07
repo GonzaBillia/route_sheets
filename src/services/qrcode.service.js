@@ -1,7 +1,7 @@
 // services/qrcode.service.js
 import { Op } from "sequelize";
 import {QRCode} from "../models/index.models.js";
-import {generateQRCodeWithTextBase64} from "../utils/qrcodeGenerator.js";
+import {generateQRCodeBase64} from "../utils/qrcodeGenerator.js";
 import ERROR from "../constants/errors.js";
 
 /**
@@ -71,7 +71,7 @@ export const generateBatchQRCodes = async ({ depositCode, depositId, tipoBultoCo
 
     // Generar la imagen QR en Base64, usando el código único como texto a imprimir
     const text = uniqueCode;
-    const qr_base64 = await generateQRCodeWithTextBase64({ depositCode, tipoBultoCode, depositId, tipoBultoId, serial: newSerial }, text);
+    const qr_base64 = await generateQRCodeBase64({ depositCode, tipoBultoCode, depositId, tipoBultoId, serial: newSerial }, text);
 
     // Preparar el registro con los campos necesarios:
     // - codigo: el código único armado (clave primaria)
