@@ -4,6 +4,7 @@ import { generateToken } from "../utils/jwt.js";
 import dotenv from "dotenv";
 import { User, Role } from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
+import { where } from "sequelize";
 
 dotenv.config();
 
@@ -115,5 +116,11 @@ export const getUserInfo = async (userId) => {
 
 export const getAllUsers = async () => {
   const users = await User.findAll();
+  return users;
+};
+
+export const getRepartidores = async () => {
+  const rol_repartidor = await Role.findOne({where: {name: "repartidor"}})
+  const users = await User.findAll({ where: { role_id: rol_repartidor.id } });
   return users;
 };
