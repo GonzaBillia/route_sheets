@@ -1,0 +1,400 @@
+/role:
+  get:
+    summary: "Obtener todos los roles"
+    description: "Devuelve la lista completa de roles. Requiere autenticación."
+    tags:
+      - Roles
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Roles obtenidos exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: "superadmin"
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+  post:
+    summary: "Crear un rol"
+    description: "Crea un nuevo rol. Solo accesible para superadmin."
+    tags:
+      - Roles
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos para crear un rol. Se requiere el campo 'name'."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "deposito"
+            required:
+              - name
+    responses:
+      '201':
+        description: "Rol creado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos creados exitosamente"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 2
+                    name:
+                      type: string
+                      example: "deposito"
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "El campo name es obligatorio"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/role/{id}:
+  get:
+    summary: "Obtener un rol por ID"
+    description: "Devuelve la información de un rol dado su ID. Requiere autenticación."
+    tags:
+      - Roles
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del rol."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Rol obtenido exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: "superadmin"
+      '400':
+        description: "ID inválido o faltante."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Rol no encontrado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Rol no encontrado"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object
+
+  put:
+    summary: "Actualizar un rol"
+    description: "Actualiza la información de un rol. Solo accesible para superadmin."
+    tags:
+      - Roles
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del rol a actualizar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      description: "Datos a actualizar del rol. Se requiere el campo 'name'."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "repartidor"
+            required:
+              - name
+    responses:
+      '200':
+        description: "Rol actualizado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos actualizados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: "repartidor"
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "No se proporcionaron campos para actualizar"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+  delete:
+    summary: "Eliminar un rol"
+    description: "Elimina un rol dado su ID. Solo accesible para superadmin."
+    tags:
+      - Roles
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del rol a eliminar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Rol eliminado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos eliminados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Rol eliminado correctamente"
+      '400':
+        description: "Error en la solicitud."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Solicitud inválida"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object

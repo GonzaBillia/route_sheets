@@ -1,0 +1,457 @@
+/obs:
+  post:
+    summary: "Crear una nueva observación"
+    description: "Crea una nueva observación. Accesible para usuarios con rol 'sucursal' o 'superadmin'."
+    tags:
+      - Observaciones
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos de la observación a crear. Requiere route_sheet_id, sucursal_id y texto."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              route_sheet_id:
+                type: integer
+                example: 10
+              sucursal_id:
+                type: integer
+                example: 2
+              texto:
+                type: string
+                example: "Falta producto X en la entrega."
+            required:
+              - route_sheet_id
+              - sucursal_id
+              - texto
+    responses:
+      '201':
+        description: "Observación creada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos creados exitosamente"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    route_sheet_id:
+                      type: integer
+                      example: 10
+                    sucursal_id:
+                      type: integer
+                      example: 2
+                    texto:
+                      type: string
+                      example: "Falta producto X en la entrega."
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Campos faltantes o error de validación"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/obs/{id}:
+  get:
+    summary: "Obtener una observación por ID"
+    description: "Devuelve la información de una observación dado su ID. Requiere autenticación."
+    tags:
+      - Observaciones
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la observación."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Observación obtenida exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    route_sheet_id:
+                      type: integer
+                      example: 10
+                    sucursal_id:
+                      type: integer
+                      example: 2
+                    texto:
+                      type: string
+                      example: "Falta producto X en la entrega."
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "ID inválido o faltante."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Observación no encontrada."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Observación no encontrada"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object
+
+  put:
+    summary: "Actualizar una observación"
+    description: "Actualiza la información de una observación. Accesible para usuarios con rol 'sucursal' o 'superadmin'."
+    tags:
+      - Observaciones
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la observación a actualizar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      description: "Datos a actualizar de la observación (por ejemplo, el campo 'texto')."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              texto:
+                type: string
+                example: "Actualización de la observación."
+            required:
+              - texto
+    responses:
+      '200':
+        description: "Observación actualizada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos actualizados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    route_sheet_id:
+                      type: integer
+                      example: 10
+                    sucursal_id:
+                      type: integer
+                      example: 2
+                    texto:
+                      type: string
+                      example: "Actualización de la observación."
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "No se proporcionaron campos para actualizar"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+  delete:
+    summary: "Eliminar una observación"
+    description: "Elimina una observación dado su ID. Solo accesible para superadmin."
+    tags:
+      - Observaciones
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la observación a eliminar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Observación eliminada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos eliminados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Observación eliminada correctamente"
+      '400':
+        description: "Error en la solicitud."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Solicitud inválida"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/obs/route/{route_sheet_id}:
+  get:
+    summary: "Obtener observaciones por hoja de ruta"
+    description: "Devuelve todas las observaciones asociadas a una hoja de ruta, identificada por route_sheet_id. Requiere autenticación."
+    tags:
+      - Observaciones
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: route_sheet_id
+        description: "ID de la hoja de ruta."
+        required: true
+        schema:
+          type: integer
+          example: 10
+    responses:
+      '200':
+        description: "Observaciones obtenidas exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      route_sheet_id:
+                        type: integer
+                        example: 10
+                      sucursal_id:
+                        type: integer
+                        example: 2
+                      texto:
+                        type: string
+                        example: "Falta producto X en la entrega."
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "ID de hoja de ruta inválido o faltante."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID de hoja de ruta inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Observaciones no encontradas."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Observaciones no encontradas"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object

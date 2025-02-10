@@ -1,6 +1,6 @@
 // routes/pdf.routes.js
 import express from 'express';
-import { generateQRPdf } from '../controllers/downloader.controller.js';
+import { generateQRPdf } from '../controllers/pdf.controller.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();

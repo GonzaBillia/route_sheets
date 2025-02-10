@@ -1,0 +1,435 @@
+/sucu:
+  get:
+    summary: "Obtener todas las sucursales"
+    description: "Devuelve la lista completa de sucursales. Requiere autenticación."
+    tags:
+      - Sucursales
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Sucursales obtenidas exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      nombre:
+                        type: string
+                        example: "Sucursal Central"
+                      direccion:
+                        type: string
+                        example: "Calle Falsa 123"
+                      telefono:
+                        type: string
+                        example: "123456789"
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+  post:
+    summary: "Crear una nueva sucursal"
+    description: "Crea una nueva sucursal. Solo accesible para superadmin."
+    tags:
+      - Sucursales
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos de la sucursal a crear. Se requieren los campos 'nombre' y 'direccion'."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              nombre:
+                type: string
+                example: "Sucursal Nueva"
+              direccion:
+                type: string
+                example: "Av. Siempre Viva 742"
+              telefono:
+                type: string
+                example: "987654321"
+            required:
+              - nombre
+              - direccion
+    responses:
+      '201':
+        description: "Sucursal creada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos creados exitosamente"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 2
+                    nombre:
+                      type: string
+                      example: "Sucursal Nueva"
+                    direccion:
+                      type: string
+                      example: "Av. Siempre Viva 742"
+                    telefono:
+                      type: string
+                      example: "987654321"
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Campos obligatorios faltantes"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/ sucu/{id}:
+  get:
+    summary: "Obtener una sucursal por ID"
+    description: "Devuelve la información de una sucursal dado su ID. Requiere autenticación."
+    tags:
+      - Sucursales
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la sucursal."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Sucursal obtenida exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    nombre:
+                      type: string
+                      example: "Sucursal Central"
+                    direccion:
+                      type: string
+                      example: "Calle Falsa 123"
+                    telefono:
+                      type: string
+                      example: "123456789"
+      '400':
+        description: "ID inválido o faltante."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Sucursal no encontrada."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Sucursal no encontrada"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object
+
+  put:
+    summary: "Actualizar una sucursal"
+    description: "Actualiza la información de una sucursal. Solo accesible para superadmin."
+    tags:
+      - Sucursales
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la sucursal a actualizar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      description: "Datos a actualizar de la sucursal. Se pueden actualizar 'nombre', 'direccion' y 'telefono'."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              nombre:
+                type: string
+                example: "Sucursal Actualizada"
+              direccion:
+                type: string
+                example: "Av. Nueva 456"
+              telefono:
+                type: string
+                example: "1122334455"
+    responses:
+      '200':
+        description: "Sucursal actualizada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos actualizados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    nombre:
+                      type: string
+                      example: "Sucursal Actualizada"
+                    direccion:
+                      type: string
+                      example: "Av. Nueva 456"
+                    telefono:
+                      type: string
+                      example: "1122334455"
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "No se proporcionaron campos para actualizar"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+  delete:
+    summary: "Eliminar una sucursal"
+    description: "Elimina una sucursal dado su ID. Solo accesible para superadmin."
+    tags:
+      - Sucursales
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la sucursal a eliminar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Sucursal eliminada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos eliminados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Sucursal eliminada correctamente"
+      '400':
+        description: "Error en la solicitud."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Solicitud inválida"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object

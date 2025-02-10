@@ -1,0 +1,70 @@
+openapi: 3.0.0
+info:
+  title: Hojas de Ruta API
+  version: "1.0.0"
+  description: API para la gestión de hojas de ruta y autenticación.
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+paths:
+  /auth:
+    $ref: './auth.yaml'
+  /bulto:
+    $ref: './bulto.yaml'
+  /depo:
+    $ref: './deposito.yaml'
+  /pdf:
+    $ref: './downloader.yaml'
+  /estado:
+    $ref: './estado.yaml'
+  /obs:
+    $ref: './observation.yaml'
+  /qr-code:
+    $ref: './qrcode.yaml'
+  /remito:
+    $ref: './remito.yaml'
+  /rep-sucu:
+    $ref: './repartidorSucursal.yaml'
+  /role:
+    $ref: './role.yaml'
+  /route-sheet:
+    $ref: './routeSheet.yaml'
+  /sucu:
+    $ref: './sucursal.yaml'
+  /tipos-bulto:
+    $ref: './tiposBulto.yaml'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operación completada con éxito"
+        statusCode:
+          type: integer
+          example: 200
+        data:
+          type: object
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Ocurrió un error"
+        statusCode:
+          type: integer
+          example: 500
+        errors:
+          type: object

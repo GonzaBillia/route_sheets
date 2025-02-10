@@ -1,0 +1,417 @@
+/tipos-bulto:
+  get:
+    summary: "Obtener todos los tipos de bulto"
+    description: "Devuelve la lista completa de tipos de bulto. Requiere autenticación."
+    tags:
+      - "Tipos de Bulto"
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Tipos de bulto obtenidos exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      nombre:
+                        type: string
+                        example: "Caja"
+                      codigo:
+                        type: string
+                        example: "CA"
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+  post:
+    summary: "Crear un nuevo tipo de bulto"
+    description: "Crea un nuevo tipo de bulto. Solo accesible para superadmin."
+    tags:
+      - "Tipos de Bulto"
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos para crear un nuevo tipo de bulto. Se requieren los campos 'nombre' y 'codigo'."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              nombre:
+                type: string
+                example: "Caja"
+              codigo:
+                type: string
+                example: "CA"
+            required:
+              - nombre
+              - codigo
+    responses:
+      '201':
+        description: "Tipo de bulto creado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos creados exitosamente"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    nombre:
+                      type: string
+                      example: "Caja"
+                    codigo:
+                      type: string
+                      example: "CA"
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Campos obligatorios faltantes"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/ tipos-bulto/{id}:
+  get:
+    summary: "Obtener un tipo de bulto por ID"
+    description: "Devuelve la información de un tipo de bulto dado su ID. Requiere autenticación."
+    tags:
+      - "Tipos de Bulto"
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del tipo de bulto."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Tipo de bulto obtenido exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    nombre:
+                      type: string
+                      example: "Caja"
+                    codigo:
+                      type: string
+                      example: "CA"
+      '400':
+        description: "ID inválido o faltante."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Tipo de bulto no encontrado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Tipo de bulto no encontrado"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object
+
+  put:
+    summary: "Actualizar un tipo de bulto"
+    description: "Actualiza la información de un tipo de bulto. Solo accesible para superadmin."
+    tags:
+      - "Tipos de Bulto"
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del tipo de bulto a actualizar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      description: "Datos a actualizar para el tipo de bulto. Se pueden actualizar los campos 'nombre' y 'codigo'."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              nombre:
+                type: string
+                example: "Caja Actualizada"
+              codigo:
+                type: string
+                example: "CAU"
+    responses:
+      '200':
+        description: "Tipo de bulto actualizado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos actualizados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    nombre:
+                      type: string
+                      example: "Caja Actualizada"
+                    codigo:
+                      type: string
+                      example: "CAU"
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "No se proporcionaron campos para actualizar"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+  delete:
+    summary: "Eliminar un tipo de bulto"
+    description: "Elimina un tipo de bulto dado su ID. Solo accesible para superadmin."
+    tags:
+      - "Tipos de Bulto"
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del tipo de bulto a eliminar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Tipo de bulto eliminado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos eliminados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Tipo de bulto eliminado correctamente"
+      '400':
+        description: "Error en la solicitud."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Solicitud inválida"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object

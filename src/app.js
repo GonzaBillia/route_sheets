@@ -7,7 +7,6 @@ import SUCCESS from "./constants/success.js";
 import ERROR from "./constants/errors.js";
 import { swaggerUi, swaggerSpec } from './config/swagger.js';
 import { errorResponse, successResponse } from "./utils/handlers/responseHandler.js";
-import sequelize from "./config/database.js";
 
 import authRoutes from "./routes/auth.routes.js"
 import depoRoutes from "./routes/deposito.routes.js"
@@ -57,9 +56,6 @@ app.use("/api/pdf", pdfRoutes)
 // Integración de Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-
-//database
-//sequelize.sync({ alter: true }).then(() => console.log("Base de datos sincronizada"));
 
 // Ruta de prueba
 app.get("/", (req, res) => successResponse(res, SUCCESS.SERVER_RUNNING))

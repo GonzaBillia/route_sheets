@@ -1,0 +1,365 @@
+/auth/register:
+  post:
+    summary: "Registro de usuario"
+    description: "Registro de un nuevo usuario. Solo accesible para superadmin."
+    tags:
+      - Authentication
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos para el registro de un nuevo usuario."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                example: "nuevoUsuario"
+              email:
+                type: string
+                example: "nuevo@ejemplo.com"
+              password:
+                type: string
+                example: "contraseñaSegura123"
+              role:
+                type: string
+                example: "superadmin"
+              deposito_id:
+                type: integer
+                example: 1
+              sucursal_id:
+                type: integer
+                example: 2
+            required:
+              - username
+              - email
+              - password
+              - role
+    responses:
+      '201':
+        description: "Usuario creado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Operación completada con éxito"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties: {}   # Aquí se incluirían los campos retornados del usuario
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Campos faltantes o error en la validación"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/auth/login:
+  post:
+    summary: "Inicio de sesión"
+    description: "Permite a un usuario iniciar sesión usando email y contraseña."
+    tags:
+      - Authentication
+    requestBody:
+      description: "Credenciales del usuario."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                example: "usuario@ejemplo.com"
+              password:
+                type: string
+                example: "contraseñaSegura123"
+            required:
+              - email
+              - password
+    responses:
+      '200':
+        description: "Inicio de sesión exitoso."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR..."
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    username:
+                      type: string
+                      example: "usuario"
+                    email:
+                      type: string
+                      example: "usuario@ejemplo.com"
+                    role:
+                      type: string
+                      example: "superadmin"
+                    deposito_id:
+                      type: integer
+                      example: 1
+                    sucursal_id:
+                      type: integer
+                      example: 2
+      '400':
+        description: "Error en las credenciales o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error en las credenciales o campos faltantes"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+
+/auth/logout:
+  post:
+    summary: "Cerrar sesión"
+    description: "Cierra la sesión del usuario y limpia la cookie de autenticación."
+    tags:
+      - Authentication
+    security:
+      - cookieAuth: []
+    responses:
+      '201':
+        description: "Cierre de sesión exitoso."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Operación completada con éxito"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+      '500':
+        description: "Error al cerrar sesión."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+/auth/me:
+  get:
+    summary: "Obtener información del usuario"
+    description: "Devuelve la información del usuario autenticado."
+    tags:
+      - Authentication
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Información del usuario obtenida exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    username:
+                      type: string
+                      example: "usuario"
+                    email:
+                      type: string
+                      example: "usuario@ejemplo.com"
+                    role:
+                      type: string
+                      example: "superadmin"
+                    deposito_id:
+                      type: integer
+                      example: 1
+                    sucursal_id:
+                      type: integer
+                      example: 2
+      '401':
+        description: "Token faltante o inválido."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token faltante o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+
+/auth:
+  get:
+    summary: "Obtener lista de usuarios"
+    description: "Devuelve la lista completa de usuarios. Solo accesible para superadmin."
+    tags:
+      - Authentication
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Lista de usuarios obtenida exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      username:
+                        type: string
+                        example: "usuario"
+                      email:
+                        type: string
+                        example: "usuario@ejemplo.com"
+                      role:
+                        type: string
+                        example: "superadmin"
+                      deposito_id:
+                        type: integer
+                        example: 1
+                      sucursal_id:
+                        type: integer
+                        example: 2
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object

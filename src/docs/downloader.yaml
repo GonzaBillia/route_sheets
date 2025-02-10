@@ -1,0 +1,52 @@
+/pdf/qr:
+  get:
+    summary: "Descargar PDF de códigos QR"
+    description: >
+      Genera un PDF a partir de un arreglo de códigos QR y lo descarga directamente.
+      Se espera que en el cuerpo de la solicitud se reciba un objeto con la propiedad "qrCodes",
+      que es un arreglo de objetos, cada uno con las propiedades:
+        - codigo: el código único (ej. "DP-CA-000001")
+        - qr_base64: la imagen del QR en formato Base64 (incluyendo el prefijo "data:image/png;base64,")
+    tags:
+      - PDF
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Arreglo de códigos QR para generar el PDF"
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              qrCodes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    codigo:
+                      type: string
+                      example: "DP-CA-000001"
+                    qr_base64:
+                      type: string
+                      example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAFUCAYAAACeDAHZAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAgAElEQVR4n..."
+    responses:
+      '200':
+        description: "PDF generado y descargado exitosamente"
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      '400':
+        description: "Solicitud inválida o datos faltantes"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: "Error interno en el servidor"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'

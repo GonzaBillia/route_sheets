@@ -1,0 +1,491 @@
+/qr-code:
+  get:
+    summary: "Obtener todos los códigos QR"
+    description: "Devuelve la lista completa de códigos QR. Requiere autenticación."
+    tags:
+      - Códigos QR
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Códigos QR obtenidos exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      codigo:
+                        type: string
+                        example: "DP-CA-000005"
+                      serial:
+                        type: integer
+                        example: 5
+                      qr_base64:
+                        type: string
+                        example: "data:image/png;base64,..."
+                      deposito_id:
+                        type: integer
+                        example: 1
+                      bulto_id:
+                        type: integer
+                        nullable: true
+                        example: null
+                      tipo_bulto_id:
+                        type: integer
+                        example: 2
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2023-02-07T12:00:00Z"
+      '401':
+        description: "No autorizado"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+  post:
+    summary: "Crear códigos QR en lote"
+    description: >
+      Genera códigos QR en lote para una combinación de depósito y tipo de bulto.  
+      Accesible para operador de depósito o superadmin.
+    tags:
+      - Códigos QR
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos para generar el lote de códigos QR."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              codigo_deposito:
+                type: string
+                example: "DP"
+              deposito_id:
+                type: integer
+                example: 1
+              tipo_bulto:
+                type: string
+                example: "CA"
+              tipo_bulto_id:
+                type: integer
+                example: 2
+              cantidad:
+                type: integer
+                example: 5
+            required:
+              - codigo_deposito
+              - deposito_id
+              - tipo_bulto
+              - tipo_bulto_id
+              - cantidad
+    responses:
+      '201':
+        description: "Códigos QR generados exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos creados exitosamente"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      codigo:
+                        type: string
+                        example: "DP-CA-000005"
+                      serial:
+                        type: integer
+                        example: 5
+                      qr_base64:
+                        type: string
+                        example: "data:image/png;base64,..."
+                      deposito_id:
+                        type: integer
+                        example: 1
+                      bulto_id:
+                        type: integer
+                        nullable: true
+                        example: null
+                      tipo_bulto_id:
+                        type: integer
+                        example: 2
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Faltan datos obligatorios para generar el lote de códigos QR"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/qr-code/{id}:
+  get:
+    summary: "Obtener un código QR por ID"
+    description: "Devuelve la información de un código QR dado su ID. Requiere autenticación."
+    tags:
+      - Códigos QR
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del código QR."
+        required: true
+        schema:
+          type: integer
+          example: 5
+    responses:
+      '200':
+        description: "Código QR obtenido exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    codigo:
+                      type: string
+                      example: "DP-CA-000005"
+                    serial:
+                      type: integer
+                      example: 5
+                    qr_base64:
+                      type: string
+                      example: "data:image/png;base64,..."
+                    deposito_id:
+                      type: integer
+                      example: 1
+                    bulto_id:
+                      type: integer
+                      nullable: true
+                      example: null
+                    tipo_bulto_id:
+                      type: integer
+                      example: 2
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "ID inválido o faltante."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Código QR no encontrado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Código QR no encontrado"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object
+
+  put:
+    summary: "Actualizar un código QR"
+    description: "Actualiza los datos de un código QR (por ejemplo, para asociarlo a un bulto o actualizar qr_base64). Accesible para operador de depósito o superadmin."
+    tags:
+      - Códigos QR
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del código QR a actualizar."
+        required: true
+        schema:
+          type: integer
+          example: 5
+    requestBody:
+      description: "Datos a actualizar del código QR. Se permiten actualizar, por ejemplo, el campo qr_base64 o bulto_id."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              qr_base64:
+                type: string
+                example: "data:image/png;base64,..."
+              bulto_id:
+                type: integer
+                nullable: true
+                example: 10
+            # Otros campos opcionales se pueden agregar según la lógica.
+    responses:
+      '200':
+        description: "Código QR actualizado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos actualizados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    codigo:
+                      type: string
+                      example: "DP-CA-000005"
+                    serial:
+                      type: integer
+                      example: 5
+                    qr_base64:
+                      type: string
+                      example: "data:image/png;base64,..."
+                    deposito_id:
+                      type: integer
+                      example: 1
+                    bulto_id:
+                      type: integer
+                      nullable: true
+                      example: 10
+                    tipo_bulto_id:
+                      type: integer
+                      example: 2
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error en la solicitud"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+  delete:
+    summary: "Eliminar un código QR"
+    description: "Elimina un código QR dado su ID. Solo accesible para superadmin."
+    tags:
+      - Códigos QR
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del código QR a eliminar."
+        required: true
+        schema:
+          type: integer
+          example: 5
+    responses:
+      '200':
+        description: "Código QR eliminado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos eliminados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Código QR eliminado correctamente"
+      '400':
+        description: "Error en la solicitud."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Solicitud inválida"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object

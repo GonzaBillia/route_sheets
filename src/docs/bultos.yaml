@@ -1,0 +1,537 @@
+/bultos:
+  get:
+    summary: "Obtener todos los bultos"
+    description: "Devuelve la lista completa de bultos. Requiere autenticación."
+    tags:
+      - Bultos
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Lista de bultos obtenida exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      tipo:
+                        type: string
+                        example: "caja"
+                      codigo:
+                        type: string
+                        example: "DP-CA-000005"
+                      serial:
+                        type: integer
+                        example: 5
+                      qr_base64:
+                        type: string
+                        example: "data:image/png;base64,..."
+                      route_sheet_id:
+                        type: integer
+                        example: 10
+                      deposito_id:
+                        type: integer
+                        example: 1
+                      bulto_id:
+                        type: integer
+                        nullable: true
+                        example: null
+                      tipo_bulto_id:
+                        type: integer
+                        example: 2
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2023-02-07T12:00:00Z"
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+  post:
+    summary: "Crear un bulto"
+    description: "Crea un nuevo bulto. Solo accesible para superadmin."
+    tags:
+      - Bultos
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos del bulto a crear."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              tipo:
+                type: string
+                example: "caja"
+              codigo:
+                type: string
+                example: "DP-CA-000005"
+              route_sheet_id:
+                type: integer
+                example: 10
+            required:
+              - tipo
+              - codigo
+              - route_sheet_id
+    responses:
+      '201':
+        description: "Bulto creado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Operación completada con éxito"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    tipo:
+                      type: string
+                      example: "caja"
+                    codigo:
+                      type: string
+                      example: "DP-CA-000005"
+                    route_sheet_id:
+                      type: integer
+                      example: 10
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Campos faltantes o error de validación"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/bultos/{id}:
+  get:
+    summary: "Obtener un bulto por ID"
+    description: "Devuelve la información de un bulto dado su ID. Requiere autenticación."
+    tags:
+      - Bultos
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del bulto."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Bulto obtenido exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    tipo:
+                      type: string
+                      example: "caja"
+                    codigo:
+                      type: string
+                      example: "DP-CA-000005"
+                    route_sheet_id:
+                      type: integer
+                      example: 10
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "ID inválido."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Bulto no encontrado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Bulto no encontrado"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object
+
+  put:
+    summary: "Actualizar un bulto"
+    description: "Actualiza la información de un bulto. Solo accesible para superadmin."
+    tags:
+      - Bultos
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del bulto a actualizar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      description: "Datos a actualizar del bulto."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              tipo:
+                type: string
+                example: "caja"
+              codigo:
+                type: string
+                example: "DP-CA-000005"
+              route_sheet_id:
+                type: integer
+                example: 10
+    responses:
+      '200':
+        description: "Bulto actualizado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Operación completada con éxito"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    tipo:
+                      type: string
+                      example: "caja"
+                    codigo:
+                      type: string
+                      example: "DP-CA-000005"
+                    route_sheet_id:
+                      type: integer
+                      example: 10
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "Error en la solicitud o validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error en la solicitud"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+  delete:
+    summary: "Eliminar un bulto"
+    description: "Elimina un bulto dado su ID. Solo accesible para superadmin."
+    tags:
+      - Bultos
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del bulto a eliminar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Bulto eliminado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Operación completada con éxito"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Bulto eliminado correctamente"
+      '400':
+        description: "Error en la solicitud."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Solicitud inválida"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/bultos/code/{code}:
+  get:
+    summary: "Obtener un bulto por código"
+    description: "Devuelve la información de un bulto utilizando su código único (externalId). Requiere autenticación."
+    tags:
+      - Bultos
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+        description: "Código del bulto."
+    responses:
+      '200':
+        description: "Bulto obtenido exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Operación completada con éxito"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    tipo:
+                      type: string
+                      example: "caja"
+                    codigo:
+                      type: string
+                      example: "DP-CA-000005"
+                    route_sheet_id:
+                      type: integer
+                      example: 10
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "Código faltante o inválido."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Código faltante o inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Bulto no encontrado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Bulto no encontrado"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object

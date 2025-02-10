@@ -1,0 +1,327 @@
+/rep-sucu:
+  get:
+    summary: "Listar todas las asociaciones repartidor-sucursal"
+    description: "Devuelve la lista completa de asociaciones entre repartidores y sucursales. Solo accesible para superadmin."
+    tags:
+      - Repartidor-Sucursal
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Asociaciones obtenidas exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                        example: 1
+                      sucursal_id:
+                        type: integer
+                        example: 2
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+  post:
+    summary: "Crear una asociación repartidor-sucursal"
+    description: "Crea una nueva asociación entre un repartidor y una sucursal. Solo accesible para superadmin."
+    tags:
+      - Repartidor-Sucursal
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Objeto que contiene los campos user_id y sucursal_id."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                example: 1
+              sucursal_id:
+                type: integer
+                example: 2
+            required:
+              - user_id
+              - sucursal_id
+    responses:
+      '201':
+        description: "Asociación creada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos creados exitosamente"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties:
+                    user_id:
+                      type: integer
+                      example: 1
+                    sucursal_id:
+                      type: integer
+                      example: 2
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Se requieren user_id y sucursal_id"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/rep-sucu/{user_id}/{sucursal_id}:
+  get:
+    summary: "Obtener una asociación específica"
+    description: "Devuelve la asociación entre un repartidor y una sucursal dado su user_id y sucursal_id. Solo accesible para superadmin."
+    tags:
+      - Repartidor-Sucursal
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        description: "ID del repartidor."
+        schema:
+          type: integer
+          example: 1
+      - in: path
+        name: sucursal_id
+        required: true
+        description: "ID de la sucursal."
+        schema:
+          type: integer
+          example: 2
+    responses:
+      '200':
+        description: "Asociación obtenida exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    user_id:
+                      type: integer
+                      example: 1
+                    sucursal_id:
+                      type: integer
+                      example: 2
+      '400':
+        description: "Campos faltantes o ID inválido."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Se requieren user_id y sucursal_id"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Asociación no encontrada."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Asociación no encontrada"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object
+
+  delete:
+    summary: "Eliminar una asociación"
+    description: "Elimina la asociación entre un repartidor y una sucursal dado su user_id y sucursal_id. Solo accesible para superadmin."
+    tags:
+      - Repartidor-Sucursal
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        description: "ID del repartidor."
+        schema:
+          type: integer
+          example: 1
+      - in: path
+        name: sucursal_id
+        required: true
+        description: "ID de la sucursal."
+        schema:
+          type: integer
+          example: 2
+    responses:
+      '200':
+        description: "Asociación eliminada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos eliminados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Asociación eliminada correctamente"
+      '400':
+        description: "Campos faltantes o error en la solicitud."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Se requieren user_id y sucursal_id"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object

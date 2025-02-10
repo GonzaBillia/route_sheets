@@ -1,0 +1,264 @@
+/remito:
+  get:
+    summary: "Listar todos los remitos"
+    description: "Devuelve la lista completa de remitos. Acceso restringido (solo para superadmin)."
+    tags:
+      - Remitos
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Remitos obtenidos exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      external_id:
+                        type: string
+                        example: "RMT-12345"
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2023-02-07T12:00:00Z"
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+  post:
+    summary: "Crear un remito"
+    description: "Crea un nuevo remito. El campo external_id es obligatorio y debe ser único. Requiere autenticación."
+    tags:
+      - Remitos
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos del remito a crear. Se requiere el campo external_id."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              external_id:
+                type: string
+                example: "RMT-12345"
+            required:
+              - external_id
+    responses:
+      '201':
+        description: "Remito creado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos creados exitosamente"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    external_id:
+                      type: string
+                      example: "RMT-12345"
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "El campo external_id es obligatorio"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '409':
+        description: "Conflicto: El remito ya existe."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "El remito ya existe"
+                statusCode:
+                  type: integer
+                  example: 409
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+/remito/{id}:
+  get:
+    summary: "Obtener un remito por ID"
+    description: "Devuelve la información de un remito dado su ID. Requiere autenticación."
+    tags:
+      - Remitos
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID del remito."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Remito obtenido exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    external_id:
+                      type: string
+                      example: "RMT-12345"
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+      '400':
+        description: "ID inválido o faltante."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Remito no encontrado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Remito no encontrado"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object

@@ -1,0 +1,162 @@
+/estado:
+  get:
+    summary: "Obtener todos los estados"
+    description: "Devuelve la lista completa de estados. Requiere autenticación."
+    tags:
+      - Estados
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Lista de estados obtenida exitosamente."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadosResponse'
+      '401':
+        description: "No autorizado"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  post:
+    summary: "Crear un nuevo estado"
+    description: "Crea un nuevo estado. Solo accesible para superadmin."
+    tags:
+      - Estados
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: "Datos del estado a crear."
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateEstado'
+    responses:
+      '201':
+        description: "Estado creado exitosamente."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuccessResponse'
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/estado/{id}:
+  get:
+    summary: "Obtener un estado por ID"
+    description: "Devuelve la información de un estado dado su ID. Requiere autenticación."
+    tags:
+      - Estados
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: "ID del estado."
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: "Estado obtenido exitosamente."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Estado'
+      '400':
+        description: "ID inválido o faltante."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: "Estado no encontrado."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  put:
+    summary: "Actualizar un estado"
+    description: "Actualiza la información de un estado. Solo accesible para superadmin."
+    tags:
+      - Estados
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: "ID del estado a actualizar."
+        schema:
+          type: integer
+    requestBody:
+      description: "Datos a actualizar del estado."
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateEstado'
+    responses:
+      '200':
+        description: "Estado actualizado exitosamente."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuccessResponse'
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  delete:
+    summary: "Eliminar un estado"
+    description: "Elimina un estado dado su ID. Solo accesible para superadmin."
+    tags:
+      - Estados
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: "ID del estado a eliminar."
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: "Estado eliminado exitosamente."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuccessResponse'
+      '400':
+        description: "Error en la solicitud."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'

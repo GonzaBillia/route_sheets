@@ -1,0 +1,778 @@
+/route-sheet:
+  get:
+    summary: "Obtener todas las hojas de ruta"
+    description: "Devuelve la lista completa de hojas de ruta. Requiere autenticación."
+    tags:
+      - Hojas de Ruta
+    security:
+      - cookieAuth: []
+    responses:
+      '200':
+        description: "Hojas de ruta obtenidas exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      codigo:
+                        type: string
+                        example: "0103XX-7"
+                      estado_id:
+                        type: integer
+                        example: 1
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2023-02-07T12:00:00Z"
+                      sent_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                        example: null
+                      received_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                        example: null
+                      deposito_id:
+                        type: integer
+                        example: 1
+                      created_by:
+                        type: integer
+                        example: 10
+                      repartidor_id:
+                        type: integer
+                        nullable: true
+                        example: 5
+                      sucursal_id:
+                        type: integer
+                        example: 3
+                      remito_id:
+                        type: integer
+                        nullable: true
+                        example: 7
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+  post:
+    summary: "Crear una hoja de ruta"
+    description: >
+      Crea una nueva hoja de ruta.  
+      Requiere autenticación y acceso para roles "deposito" o "superadmin".  
+      En el body se debe enviar un objeto que contenga un arreglo llamado `scannedQRCodes` (con al menos un código QR) y otros campos necesarios (por ejemplo, sucursal_id, remito_id y repartidor_id).
+    tags:
+      - Hojas de Ruta
+    security:
+      - cookieAuth: []
+    requestBody:
+      description: >
+        Objeto con los datos de la hoja de ruta y el arreglo `scannedQRCodes`.  
+        Ejemplo:
+        {
+          "scannedQRCodes": ["QR_CODE_1", "QR_CODE_2"],
+          "sucursal_id": 3,
+          "remito_id": "RMT-XYZ",   // External ID del remito a crear
+          "repartidor_id": 5         // Opcional
+          // otros campos...
+        }
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              scannedQRCodes:
+                type: array
+                items:
+                  type: string
+                example: ["QR_CODE_1", "QR_CODE_2"]
+              sucursal_id:
+                type: integer
+                example: 3
+              remito_id:
+                type: string
+                description: "External ID del remito a crear"
+                example: "RMT-XYZ"
+              repartidor_id:
+                type: integer
+                nullable: true
+                example: 5
+            required:
+              - scannedQRCodes
+              - sucursal_id
+              - remito_id
+    responses:
+      '201':
+        description: "Hoja de ruta creada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos creados exitosamente"
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    codigo:
+                      type: string
+                      example: "0103XX-7"
+                    estado_id:
+                      type: integer
+                      example: 1
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+                    sent_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+                    received_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+                    deposito_id:
+                      type: integer
+                      example: 1
+                    created_by:
+                      type: integer
+                      example: 10
+                    repartidor_id:
+                      type: integer
+                      nullable: true
+                      example: 5
+                    sucursal_id:
+                      type: integer
+                      example: 3
+                    remito_id:
+                      type: integer
+                      nullable: true
+                      example: 7
+      '400':
+        description: "Campos faltantes o error de validación."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Faltan campos obligatorios o datos inválidos"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '401':
+        description: "No autorizado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token no proporcionado o inválido"
+                statusCode:
+                  type: integer
+                  example: 401
+                errors:
+                  type: object
+      '403':
+        description: "Acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Acceso denegado"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+/route-sheet/{id}:
+  get:
+    summary: "Obtener una hoja de ruta por ID"
+    description: "Devuelve la información de una hoja de ruta dado su ID. Requiere autenticación."
+    tags:
+      - Hojas de Ruta
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la hoja de ruta."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Hoja de ruta obtenida exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos obtenidos correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    codigo:
+                      type: string
+                      example: "0103XX-7"
+                    estado_id:
+                      type: integer
+                      example: 1
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+                    sent_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+                    received_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+                    deposito_id:
+                      type: integer
+                      example: 1
+                    created_by:
+                      type: integer
+                      example: 10
+                    repartidor_id:
+                      type: integer
+                      nullable: true
+                      example: 5
+                    sucursal_id:
+                      type: integer
+                      example: 3
+                    remito_id:
+                      type: integer
+                      nullable: true
+                      example: 7
+      '400':
+        description: "ID inválido o faltante."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "ID inválido"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '404':
+        description: "Hoja de ruta no encontrada."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Hoja de ruta no encontrada"
+                statusCode:
+                  type: integer
+                  example: 404
+                errors:
+                  type: object
+
+  put:
+    summary: "Actualizar una hoja de ruta"
+    description: >
+      Actualiza completamente la información de una hoja de ruta.  
+      Solo es posible si la hoja de ruta aún no ha sido enviada (sent_at es null).  
+      Accesible para roles "deposito" y "superadmin".
+    tags:
+      - Hojas de Ruta
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la hoja de ruta a actualizar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      description: "Datos para actualizar la hoja de ruta. Se requiere al menos el campo sucursal_id y remito_id (external_id para crear remito)."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              sucursal_id:
+                type: integer
+                example: 3
+              remito_id:
+                type: string
+                description: "External ID del remito a crear"
+                example: "RMT-ABC"
+              repartidor_id:
+                type: integer
+                nullable: true
+                example: 5
+            required:
+              - sucursal_id
+              - remito_id
+    responses:
+      '200':
+        description: "Hoja de ruta actualizada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos actualizados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    codigo:
+                      type: string
+                      example: "0103XX-7"
+                    estado_id:
+                      type: integer
+                      example: 1
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+                    sent_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+                    received_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+                    deposito_id:
+                      type: integer
+                      example: 1
+                    created_by:
+                      type: integer
+                      example: 10
+                    repartidor_id:
+                      type: integer
+                      nullable: true
+                      example: 5
+                    sucursal_id:
+                      type: integer
+                      example: 3
+                    remito_id:
+                      type: integer
+                      nullable: true
+                      example: 7
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error en la solicitud"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "No se puede modificar la hoja de ruta después de enviarla o acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "No se puede modificar la hoja de ruta después de enviarla"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
+
+  delete:
+    summary: "Eliminar una hoja de ruta"
+    description: "Elimina una hoja de ruta dado su ID, solo si aún no ha sido enviada. Solo accesible para roles 'deposito' y 'superadmin'."
+    tags:
+      - Hojas de Ruta
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la hoja de ruta a eliminar."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    responses:
+      '200':
+        description: "Hoja de ruta eliminada exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos eliminados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Hoja de ruta eliminada correctamente"
+      '400':
+        description: "Error en la solicitud."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Solicitud inválida"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "No se puede eliminar la hoja de ruta después de enviarla o acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "No se puede eliminar la hoja de ruta después de enviarla"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+
+/route-sheet/{id}/state:
+  put:
+    summary: "Actualizar el estado de una hoja de ruta"
+    description: >
+      Actualiza únicamente el estado de una hoja de ruta. Dependiendo del nuevo estado, se actualizan los timestamps:
+      - Si estado_id se actualiza a 3 ("sent") y sent_at es nulo, se establece el timestamp actual.
+      - Si estado_id se actualiza a 4 ("received") y received_at es nulo, se establece el timestamp actual.
+      Accesible para roles "repartidor", "sucursal" y "superadmin".
+    tags:
+      - Hojas de Ruta
+    security:
+      - cookieAuth: []
+    parameters:
+      - in: path
+        name: id
+        description: "ID de la hoja de ruta a actualizar el estado."
+        required: true
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      description: "Objeto que contiene el campo estado_id."
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              estado_id:
+                type: integer
+                description: "Nuevo estado (por ejemplo, 3 para sent, 4 para received)"
+                example: 3
+            required:
+              - estado_id
+    responses:
+      '200':
+        description: "Estado de la hoja de ruta actualizado exitosamente."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Datos actualizados correctamente"
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    codigo:
+                      type: string
+                      example: "0103XX-7"
+                    estado_id:
+                      type: integer
+                      example: 3
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2023-02-07T12:00:00Z"
+                    sent_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: "2023-02-07T15:00:00Z"
+                    received_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+                    deposito_id:
+                      type: integer
+                      example: 1
+                    created_by:
+                      type: integer
+                      example: 10
+                    repartidor_id:
+                      type: integer
+                      nullable: true
+                      example: 5
+                    sucursal_id:
+                      type: integer
+                      example: 3
+                    remito_id:
+                      type: integer
+                      nullable: true
+                      example: 7
+      '400':
+        description: "Error de validación o campos faltantes."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "El campo estado_id es obligatorio"
+                statusCode:
+                  type: integer
+                  example: 400
+                errors:
+                  type: object
+      '403':
+        description: "No se puede modificar la hoja de ruta después de enviarla o acceso denegado."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "No se puede modificar la hoja de ruta después de enviarla"
+                statusCode:
+                  type: integer
+                  example: 403
+                errors:
+                  type: object
+      '500':
+        description: "Error interno en el servidor."
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno en el servidor"
+                statusCode:
+                  type: integer
+                  example: 500
+                errors:
+                  type: object
