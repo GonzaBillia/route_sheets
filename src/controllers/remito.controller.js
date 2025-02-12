@@ -1,5 +1,5 @@
 // controllers/remito.controller.js
-import { createRemito, getRemitoById, getAllRemitos } from "../services/remito.service.js";
+import { createRemito, getRemitoById, getAllRemitos, getNumRemitos } from "../services/remito.service.js";
 import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
 import { asyncHandler } from "../utils/handlers/asyncHandler.js";
 import SUCCESS from "../constants/success.js";
@@ -35,3 +35,19 @@ export const getRemitos = asyncHandler(async (req, res) => {
     return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
   }
 });
+
+
+/**
+ * Controlador para obtener los remitos del día actual.
+ * @param {import('express').Request} req 
+ * @param {import('express').Response} res 
+ */
+export const getRemitosController = async (req, res) => {
+  try {
+    const remitos = await getNumRemitos();
+    return successResponse(res, "Remitos obtenidos correctamente", remitos, 200);
+  } catch (error) {
+    console.error("Error al obtener remitos:", error);
+    return errorResponse(res, "Error al obtener remitos", 500, error);
+  }
+};

@@ -48,10 +48,6 @@ RouteSheet.init(
     sucursal_id: {
       type: DataTypes.INTEGER,
       allowNull: true
-    },
-    remito_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
     }
   },
   {

@@ -1,6 +1,7 @@
 // services/remito.service.js
 import {Remito} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
+import mysqlPool from "../config/quantio.pool.js";
 
 /**
  * Crea un nuevo remito.
@@ -47,4 +48,23 @@ export const getRemitoById = async (id) => {
 export const getAllRemitos = async () => {
   const remitos = await Remito.findAll();
   return remitos;
+};
+
+export const getNumRemitos = async () => {
+  try {
+    // Ejecuta la consulta y desestructura el resultado
+    const [remitos] = await mysqlPool.query(`
+      SELECT factcabecera.CliApeNom, factcabecera.Numero 
+      FROM factcabecera
+      WHERE factcabecera.Emision = CURDATE()
+        AND factcabecera.Tipo = 'RM'
+    `);
+    
+    console.log("Remitos disponibles:", remitos);
+    
+    return remitos;
+  } catch (error) {
+    console.error("Error al obtener remitos:", error);
+    throw error;
+  }
 };

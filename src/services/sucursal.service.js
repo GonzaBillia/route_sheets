@@ -1,5 +1,5 @@
 // services/sucursal.service.js
-import {Sucursal} from "../models/index.models.js";
+import {Sucursal, RepartidorSucursal} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**
@@ -8,6 +8,24 @@ import ERROR from "../constants/errors.js";
  */
 export const getAllSucursales = async () => {
   const sucursales = await Sucursal.findAll();
+  return sucursales;
+};
+
+/**
+ * Obtiene las sucursales asociadas a un repartidor dado su id.
+ * @param {number|string} repartidorId - Id del repartidor.
+ * @returns {Promise<Array>} - Lista de sucursales.
+ */
+export const getSucursalesByRepartidorId = async (repartidorId) => {
+  const sucursales = await Sucursal.findAll({
+    include: [
+      {
+        model: RepartidorSucursal,
+        where: { repartidorId },
+        attributes: [], // Excluye los atributos de la tabla intermedia
+      },
+    ],
+  });
   return sucursales;
 };
 

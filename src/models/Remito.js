@@ -1,6 +1,7 @@
 // models/Remito.js
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database.js';
+import RouteSheet from './RouteSheet.js';
 
 class Remito extends Model {}
 
@@ -20,6 +21,14 @@ Remito.init(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW
+    },
+    routeSheet_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: RouteSheet, // o RouteSheet si ya lo has importado
+        key: 'id'
+      }
     }
   },
   {

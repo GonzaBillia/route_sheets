@@ -20,6 +20,23 @@ import {
       return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
     }
   });
+
+  /**
+ * Controlador para obtener las sucursales asociadas a un repartidor.
+ * @param {import('express').Request} req - Objeto de petición de Express.
+ * @param {import('express').Response} res - Objeto de respuesta de Express.
+ */
+export const getSucursalesByRepartidorId = async (req, res) => {
+  const { repartidorId } = req.params;
+
+  try {
+    const sucursales = await getSucursalesByRepartidorId(repartidorId);
+    return successResponse(res, "Sucursales obtenidas correctamente", sucursales, 200);
+  } catch (error) {
+    console.error("Error al obtener sucursales:", error);
+    return errorResponse(res, "Error al obtener sucursales", 500, error);
+  }
+};
   
   // Obtener una sucursal por ID
   export const getSucursal = asyncHandler(async (req, res) => {

@@ -35,9 +35,14 @@ RouteSheet.belongsTo(Deposito, { foreignKey: 'deposito_id', as: 'deposito' });
 RouteSheet.belongsTo(User, { foreignKey: 'created_by', as: 'creadoPor' });
 RouteSheet.belongsTo(User, { foreignKey: 'repartidor_id', as: 'repartidor' });
 RouteSheet.belongsTo(Sucursal, { foreignKey: 'sucursal_id', as: 'sucursal' });
-RouteSheet.belongsTo(Remito, { foreignKey: 'remito_id', as: 'remito' });
+// Eliminamos la asociación antigua con Remito y definimos la nueva relación uno a muchos:
+RouteSheet.hasMany(Remito, { foreignKey: 'routeSheet_id', as: 'remitos' });
 RouteSheet.hasMany(Bulto, { foreignKey: 'route_sheet_id', as: 'bultos' });
 RouteSheet.hasMany(Observation, { foreignKey: 'route_sheet_id', as: 'observaciones' });
+
+// Asociaciones de Remito
+// Cada Remito pertenece a un RouteSheet mediante la clave foránea "routeSheet_id"
+Remito.belongsTo(RouteSheet, { foreignKey: 'routeSheet_id', as: 'routeSheet' });
 
 // Asociaciones de Bulto
 Bulto.belongsTo(RouteSheet, { foreignKey: 'route_sheet_id', as: 'routeSheet' });
@@ -48,13 +53,8 @@ Observation.belongsTo(Sucursal, { foreignKey: 'sucursal_id', as: 'sucursal' });
 Sucursal.hasMany(Observation, { foreignKey: 'sucursal_id', as: 'observaciones' });
 
 // Relaciones para QRCode y TiposBulto
-
-// QRCode tiene una clave foránea 'tipo_bulto_id' que referencia a TiposBulto.
 QRCode.belongsTo(TiposBulto, { foreignKey: 'tipo_bulto_id', as: 'tipoBulto' });
-// TiposBulto puede tener muchos QRCode asociados.
 TiposBulto.hasMany(QRCode, { foreignKey: 'tipo_bulto_id', as: 'qrcodes' });
-
-// Además, QRCode tiene una relación con Deposito a través de 'deposito_id'.
 QRCode.belongsTo(Deposito, { foreignKey: 'deposito_id', as: 'deposito' });
 
 // Exportar todos los modelos

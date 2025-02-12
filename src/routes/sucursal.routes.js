@@ -17,6 +17,9 @@ const router = express.Router();
 // Obtener todas las sucursales (requiere autenticación)
 router.get("/", authMiddleware, getSucursales);
 
+// Obtener las sucursales de un repartidor
+router.get("/:repartidorId/sucursales", authMiddleware, accessMiddleware(["deposito"]), getSucursales);
+
 // Obtener una sucursal por ID (requiere autenticación)
 router.get("/:id", authMiddleware, getSucursal);
 

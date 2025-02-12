@@ -1,6 +1,6 @@
 // routes/remito.routes.js
 import express from "express";
-import { createRemitoController, getRemito, getRemitos } from "../controllers/remito.controller.js";
+import { createRemitoController, getRemito, getRemitos, getRemitosController } from "../controllers/remito.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
 import { validate } from "../middleware/validate.js";
@@ -10,6 +10,8 @@ const router = express.Router();
 
 // Listar todos los remitos (acceso restringido, por ejemplo, solo para superadmin)
 router.get("/", authMiddleware, accessMiddleware(["superadmin"]), getRemitos);
+
+router.get("/quantio",authMiddleware, accessMiddleware(["deposito"]), getRemitosController);
 
 // Obtener un remito por ID (requiere autenticación)
 router.get("/:id", authMiddleware, getRemito);
