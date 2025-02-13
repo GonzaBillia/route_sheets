@@ -60,8 +60,6 @@ export const getNumRemitos = async () => {
         AND factcabecera.Tipo = 'RM'
     `);
     
-    console.log("Remitos disponibles:", remitos);
-    
     return remitos;
   } catch (error) {
     console.error("Error al obtener remitos:", error);

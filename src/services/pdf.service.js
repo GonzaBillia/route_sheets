@@ -64,7 +64,7 @@ export const generateQRPdfService = async (qrCodes) => {
 
       // Al terminar de escribir, se resuelve la promesa con el Buffer del PDF
       writableBuffer.on('finish', () => {
-        const pdfBuffer = writableBuffer.getBuffer();
+        const pdfBuffer = writableBuffer.getContents(); // usa getContents() en lugar de getBuffer()
         resolve(pdfBuffer);
       });
     } catch (error) {

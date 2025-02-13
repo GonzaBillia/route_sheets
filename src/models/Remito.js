@@ -22,7 +22,7 @@ Remito.init(
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
-    routeSheet_id: {
+    routesheet_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {

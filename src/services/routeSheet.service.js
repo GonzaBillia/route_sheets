@@ -71,49 +71,50 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
   
   return await sequelize.transaction(async (t) => {
     try {
-      // Extraer datos del operador y depósito desde la sesión:
+      // Extraer datos del operador y depósito desde la sesión
       const { id: created_by, deposito_id } = sessionUser;
-      
-      // Asignar created_by y deposito_id a la hoja de ruta
       routeSheetData.created_by = created_by;
       routeSheetData.deposito_id = deposito_id;
       routeSheetData.created_at = new Date();
-      remito_ext_id = ""
-      if (routeSheetData.remito_id) {
-        // Suponemos que routeSheetData.remito_id es el external_id a crear
-        const newRemito = await Remito.create({ external_id: routeSheetData.remito_id }, { transaction: t });
-        routeSheetData.remito_id = newRemito.id;
-        remito_ext_id = newRemito.external_id
-      } else {
-        // Si remito_id no se envía, lo dejamos como null
-        remito_ext_id = routeSheetData.remito_id
-        routeSheetData.remito_id = null;
+
+      // Procesar remitos: se espera un array en routeSheetData.remitos
+      let remitoExternalIds = [];
+      if (Array.isArray(routeSheetData.remitos) && routeSheetData.remitos.length > 0) {
+        remitoExternalIds = routeSheetData.remitos;
       }
 
-      // Generar el código de la hoja de ruta con el formato: 
-      // 2 dígitos del depósito, 2 dígitos de la sucursal, 2 dígitos del repartidor, guion y el remito.
+      // Generar el código de la hoja de ruta utilizando, por ejemplo, los external_ids de los remitos
       const depositStr = String(deposito_id).padStart(2, '0');
       const sucursalStr = String(routeSheetData.sucursal_id).padStart(2, '0');
       const repartidorStr = routeSheetData.repartidor_id ? String(routeSheetData.repartidor_id).padStart(2, '0') : '00';
-      const routeSheetCode = `${depositStr}${sucursalStr}${repartidorStr}-${routeSheetData.remito_id}`;
+      // Puedes ajustar la forma en que se integra la información de los remitos en el código
+      const routeSheetCode = `${depositStr}${sucursalStr}${repartidorStr}-${remitoExternalIds.join(',')}`;
       routeSheetData.codigo = routeSheetCode;
       
       // Crear la hoja de ruta
       const routeSheet = await RouteSheet.create(routeSheetData, { transaction: t });
       
-      // Procesar cada código QR escaneado:
+      // Si se enviaron remitos, crearlos asignándole el routesheet_id recién creado
+      let createdRemitos = [];
+      if (remitoExternalIds.length > 0) {
+        createdRemitos = await Promise.all(
+          remitoExternalIds.map(async (external_id) => {
+            return await Remito.create(
+              { external_id, routesheet_id: routeSheet.id },
+              { transaction: t }
+            );
+          })
+        );
+      }
+      
+      // Procesar cada código QR escaneado para crear bultos
       const createdBultoIds = [];
       for (const qrCodeStr of scannedQRCodes) {
-        // Buscar el registro de QR por su código único
         const qrRecord = await QRCode.findByPk(qrCodeStr, { transaction: t });
         if (!qrRecord) {
           throw { status: 404, message: `Código QR ${qrCodeStr} no encontrado.` };
         }
-
-        // Validar si el código QR es reutilizable (si ya tiene bulto_id)
         await validateReusableQRCode(qrRecord);
-
-        // Crear un bulto asignándole directamente el route_sheet_id
         const newBulto = await Bulto.create(
           { 
             codigo: qrCodeStr,
@@ -122,24 +123,21 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
           { transaction: t }
         );
         createdBultoIds.push(newBulto.id);
-
-        // Actualizar el registro del QR para asignarle el bulto_id
         await qrRecord.update({ bulto_id: newBulto.id }, { transaction: t });
       }
-
-      // Validar que el número de bultos creados sea igual a la cantidad de QR escaneados
+      
       if (createdBultoIds.length !== scannedQRCodes.length) {
         throw { status: 400, message: "La cantidad de bultos creados no coincide con la cantidad de códigos QR escaneados." };
       }
       
       return routeSheet;
     } catch (err) {
-      // Se puede registrar el error y su paso específico aquí, y luego lanzar el error para que se haga rollback.
       console.error("Error en la creación de la hoja de ruta:", err);
       throw err;
     }
   });
 };
+
 
 /**
  * Actualiza una hoja de ruta de forma completa (modificación por depósito).

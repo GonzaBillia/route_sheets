@@ -71,7 +71,7 @@ export const generateBatchQRCodes = async ({ depositCode, depositId, tipoBultoCo
 
     // Generar la imagen QR en Base64, usando el código único como texto a imprimir
     const text = uniqueCode;
-    const qr_base64 = await generateQRCodeBase64({ depositCode, tipoBultoCode, depositId, tipoBultoId, serial: newSerial }, text);
+    const qr_base64 = await generateQRCodeBase64({ codigo: uniqueCode, depositCode, tipoBultoCode, depositId, tipoBultoId, serial: newSerial }, text);
 
     // Preparar el registro con los campos necesarios:
     // - codigo: el código único armado (clave primaria)
