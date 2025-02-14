@@ -26,6 +26,21 @@ export const getRouteSheetById = async (id) => {
 };
 
 /**
+ * Obtiene una hoja de ruta por su ID.
+ * @param {string} codigo 
+ */
+export const getRouteSheetByCodigo = async (id) => {
+  if (!id) {
+    throw { status: 400, message: ERROR.INVALID_ID || "codigo inválido" };
+  }
+  const routeSheet = await RouteSheet.findOne({ where: { codigo: id } });
+  if (!routeSheet) {
+    throw { status: 404, message: ERROR.NOT_FOUND || "Hoja de ruta no encontrada" };
+  }
+  return routeSheet;
+};
+
+/**
  * Función auxiliar para validar el reuso de un código QR.
  * Si el QR ya tiene un bulto asignado, se verifica que la hoja de ruta asociada a ese bulto:
  *   - Haya sido recibida (received_at no sea null)

@@ -9,6 +9,7 @@ import { swaggerUi, swaggerSpec } from './config/swagger.js';
 import { errorResponse, successResponse } from "./utils/handlers/responseHandler.js";
 
 import authRoutes from "./routes/auth.routes.js"
+import bultoRoutes from "./routes/bulto.routes.js"
 import depoRoutes from "./routes/deposito.routes.js"
 import sucuRoutes from "./routes/sucursal.routes.js"
 import remitoRoutes from "./routes/remito.routes.js"
@@ -41,6 +42,7 @@ app.use("/public", express.static(path.public));
 
 //ROUTERS
 app.use("/api/auth", authRoutes)
+app.use("/api/bulto", bultoRoutes)
 app.use("/api/depo", depoRoutes)
 app.use("/api/sucu", sucuRoutes)
 app.use("/api/remito", remitoRoutes)

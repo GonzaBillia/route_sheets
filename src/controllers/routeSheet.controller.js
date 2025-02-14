@@ -5,7 +5,8 @@ import {
     createRouteSheet,
     updateRouteSheet,
     deleteRouteSheet,
-    updateRouteSheetState
+    updateRouteSheetState,
+    getRouteSheetByCodigo
   } from "../services/routeSheet.service.js";
   import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
   import { asyncHandler } from "../utils/handlers/asyncHandler.js";
@@ -27,6 +28,16 @@ import {
     const { id } = req.params;
     try {
       const routeSheet = await getRouteSheetById(id);
+      return successResponse(res, SUCCESS.DATA_RETRIEVED, routeSheet, 200);
+    } catch (error) {
+      return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+    }
+  });
+
+  export const getRouteSheetByCodigoController = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+      const routeSheet = await getRouteSheetByCodigo(id);
       return successResponse(res, SUCCESS.DATA_RETRIEVED, routeSheet, 200);
     } catch (error) {
       return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);

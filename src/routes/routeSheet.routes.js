@@ -6,7 +6,8 @@ import {
   createRouteSheetController,
   updateRouteSheetController,
   deleteRouteSheetController,
-  updateRouteSheetStateController
+  updateRouteSheetStateController,
+  getRouteSheetByCodigoController
 } from "../controllers/routeSheet.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
@@ -24,6 +25,9 @@ router.get("/", authMiddleware, getRouteSheets);
 
 // Obtener una hoja de ruta por ID (requiere autenticación)
 router.get("/:id", authMiddleware, getRouteSheet);
+
+// Obtener una hoja de ruta por Codigo (requiere autenticación)
+router.get("/codigo/:id", authMiddleware, getRouteSheetByCodigoController);
 
 // Crear una hoja de ruta (solo para depósito y superadmin)
 router.post(
