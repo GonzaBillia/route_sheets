@@ -13,7 +13,7 @@ Remito.init(
       primaryKey: true
     },
     external_id: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.NUMBER(100),
       allowNull: false,
       unique: true
     },

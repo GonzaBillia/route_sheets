@@ -1,5 +1,5 @@
 import sequelize from "../config/database.js";
-import {RouteSheet, Bulto, QRCode, Remito } from "../models/index.models.js";
+import { RouteSheet, Bulto, QRCode, Remito } from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**
@@ -68,7 +68,7 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
   if (uniqueQRCodes.size !== scannedQRCodes.length) {
     throw { status: 400, message: "Se han escaneado códigos QR duplicados." };
   }
-  
+
   return await sequelize.transaction(async (t) => {
     try {
       // Extraer datos del operador y depósito desde la sesión
@@ -76,6 +76,7 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
       routeSheetData.created_by = created_by;
       routeSheetData.deposito_id = deposito_id;
       routeSheetData.created_at = new Date();
+      routeSheetData.estado_id = 1
 
       // Procesar remitos: se espera un array en routeSheetData.remitos
       let remitoExternalIds = [];
@@ -87,36 +88,63 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
       const depositStr = String(deposito_id).padStart(2, '0');
       const sucursalStr = String(routeSheetData.sucursal_id).padStart(2, '0');
       const repartidorStr = routeSheetData.repartidor_id ? String(routeSheetData.repartidor_id).padStart(2, '0') : '00';
-      // Puedes ajustar la forma en que se integra la información de los remitos en el código
-      const routeSheetCode = `${depositStr}${sucursalStr}${repartidorStr}-${remitoExternalIds.join(',')}`;
+
+      // Función para generar el sufijo único
+      const generateSuffixFromSum = (externalIds) => {
+        // Sumar los external ids (asegurándose de que sean números)
+        const sum = externalIds.reduce((acc, obj) => acc + Number(obj.Numero), 0);
+
+
+        // Obtener la fecha actual en formato YYMMDD
+        const now = new Date();
+        const year = String(now.getFullYear()).slice(-2);
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const dateStr = `${year}${month}${day}`;
+
+        // Concatenar suma y fecha
+        const combined = Number(`${sum}${dateStr}`);
+
+        // Asegurarse de que sea máximo de 8 dígitos usando módulo
+        const suffix = combined % 100000000;
+        return String(suffix).padStart(8, '0');
+      };
+
+      // Ejemplo de uso:
+      const suffix = generateSuffixFromSum(remitoExternalIds);
+      const routeSheetCode = `${depositStr}${sucursalStr}${repartidorStr}-${suffix}`;
+      console.log(routeSheetCode);
       routeSheetData.codigo = routeSheetCode;
-      
+
       // Crear la hoja de ruta
       const routeSheet = await RouteSheet.create(routeSheetData, { transaction: t });
-      
+
       // Si se enviaron remitos, crearlos asignándole el routesheet_id recién creado
       let createdRemitos = [];
       if (remitoExternalIds.length > 0) {
         createdRemitos = await Promise.all(
-          remitoExternalIds.map(async (external_id) => {
+          remitoExternalIds.map(async (item) => {
             return await Remito.create(
-              { external_id, routesheet_id: routeSheet.id },
+              { external_id: item.Numero, routesheet_id: routeSheet.id },
               { transaction: t }
             );
           })
         );
       }
       
+
       // Procesar cada código QR escaneado para crear bultos
       const createdBultoIds = [];
-      for (const qrCodeStr of scannedQRCodes) {
+      for (const qrObj of scannedQRCodes) {
+        // Acceder al campo 'codigo' del objeto
+        const qrCodeStr = qrObj.codigo;
         const qrRecord = await QRCode.findByPk(qrCodeStr, { transaction: t });
         if (!qrRecord) {
           throw { status: 404, message: `Código QR ${qrCodeStr} no encontrado.` };
         }
         await validateReusableQRCode(qrRecord);
         const newBulto = await Bulto.create(
-          { 
+          {
             codigo: qrCodeStr,
             route_sheet_id: routeSheet.id
           },
@@ -126,10 +154,11 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
         await qrRecord.update({ bulto_id: newBulto.id }, { transaction: t });
       }
       
+
       if (createdBultoIds.length !== scannedQRCodes.length) {
         throw { status: 400, message: "La cantidad de bultos creados no coincide con la cantidad de códigos QR escaneados." };
       }
-      
+
       return routeSheet;
     } catch (err) {
       console.error("Error en la creación de la hoja de ruta:", err);

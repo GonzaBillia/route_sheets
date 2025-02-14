@@ -5,6 +5,7 @@ import { verifyToken } from "../utils/jwt.js";
 
 export const authMiddleware = (req, res, next) => {
   const token = req.cookies.token;
+
   if (!token) return errorResponse(res, ERROR.UNAUTHORIZED, 401);
 
   const decoded = verifyToken(token);

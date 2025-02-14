@@ -6,7 +6,7 @@ export const validate = (schema) => {
         const errors = error.details.map((detail) => detail.message);
         return res.status(400).json({
           success: false,
-          message: "Error de validación",
+          message: "Error de validación de esquema",
           errors
         });
       }
