@@ -16,12 +16,22 @@ import {
   // Obtener todas las hojas de ruta
   export const getRouteSheets = asyncHandler(async (req, res) => {
     try {
-      const routeSheets = await getAllRouteSheets();
-      return successResponse(res, SUCCESS.DATA_RETRIEVED, routeSheets, 200);
+      // Extraer parámetros de paginación de la query (ej. ?page=2&limit=10)
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const user = req.user
+      // Llamar al servicio paginado
+      const routeSheetsPaginated = await getAllRouteSheets(page, limit, user);
+      return successResponse(res, SUCCESS.DATA_RETRIEVED, routeSheetsPaginated, 200);
     } catch (error) {
-      return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+      return errorResponse(
+        res,
+        error.message || ERROR.OPERATION_FAILED,
+        error.status || 500
+      );
     }
   });
+  
   
   // Obtener una hoja de ruta por ID
   export const getRouteSheet = asyncHandler(async (req, res) => {
@@ -85,14 +95,25 @@ import {
   
   // Actualización completa de hoja de ruta (solo para depósito, antes de enviar)
   export const updateRouteSheetController = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { codigo } = req.params;
     try {
-      const routeSheet = await updateRouteSheet(id, req.body);
-      return successResponse(res, SUCCESS.DATA_UPDATED, routeSheet, 200);
+      // Buscar la hoja de ruta por su código
+      const routeSheetFound = await getRouteSheetByCodigo(codigo);
+      if (!routeSheetFound) {
+        return errorResponse(res, "Hoja de ruta no encontrada", 404);
+      }
+      // Actualizar la hoja de ruta utilizando su id
+      const updatedRouteSheet = await updateRouteSheet(routeSheetFound.id, req.body);
+      return successResponse(res, SUCCESS.DATA_UPDATED, updatedRouteSheet, 200);
     } catch (error) {
-      return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+      return errorResponse(
+        res,
+        error.message || ERROR.OPERATION_FAILED,
+        error.status || 500
+      );
     }
   });
+  
   
   // Eliminar una hoja de ruta (solo para depósito, antes de enviar)
   export const deleteRouteSheetController = asyncHandler(async (req, res) => {
@@ -107,9 +128,9 @@ import {
   
   // Actualizar solo el estado de la hoja de ruta (para repartidor y sucursal)
   export const updateRouteSheetStateController = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { codigo } = req.params;
     try {
-      const routeSheet = await updateRouteSheetState(id, req.body);
+      const routeSheet = await updateRouteSheetState(codigo, req.body);
       return successResponse(res, SUCCESS.DATA_UPDATED, routeSheet, 200);
     } catch (error) {
       return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);

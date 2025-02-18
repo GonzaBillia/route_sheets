@@ -42,6 +42,24 @@ export const getRemitoById = async (id) => {
 };
 
 /**
+ * Obtiene los remitos asociados a un routesheet_id.
+ * @param {number} routesheetId - El ID de la hoja de ruta.
+ * @returns {Promise<Array>} Lista de remitos.
+ * @throws {Object} Error si el ID es inválido o no se encuentran remitos.
+ */
+export const getRemitosByRouteSheetId = async (routesheetId) => {
+  if (!routesheetId || isNaN(routesheetId)) {
+    throw { status: 400, message: "ID inválido" };
+  }
+  const remitos = await Remito.findAll({ where: { routesheet_id: routesheetId } });
+  if (!remitos || remitos.length === 0) {
+    throw { status: 404, message: "Remitos no encontrados" };
+  }
+  return remitos;
+};
+
+
+/**
  * Obtiene todos los remitos.
  * @returns {Promise<Array>} Lista de remitos.
  */
@@ -60,6 +78,25 @@ export const getNumRemitos = async () => {
         AND factcabecera.Tipo = 'RM'
     `);
     
+    return remitos;
+  } catch (error) {
+    console.error("Error al obtener remitos:", error);
+    throw error;
+  }
+};
+
+export const getNumRemitosByDate = async (date) => {
+  try {
+    // Ejecuta la consulta y desestructura el resultado
+    const [remitos] = await mysqlPool.query(
+      `
+      SELECT factcabecera.CliApeNom, factcabecera.Numero 
+      FROM factcabecera
+      WHERE factcabecera.Emision = ?
+        AND factcabecera.Tipo = 'RM'
+      `,
+      [date]
+    );
     return remitos;
   } catch (error) {
     console.error("Error al obtener remitos:", error);

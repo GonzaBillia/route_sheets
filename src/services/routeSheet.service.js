@@ -1,14 +1,38 @@
 import sequelize from "../config/database.js";
 import { RouteSheet, Bulto, QRCode, Remito } from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
+import { errorResponse } from "../utils/handlers/responseHandler.js";
 
 /**
  * Obtiene todas las hojas de ruta.
  */
-export const getAllRouteSheets = async () => {
-  const routeSheets = await RouteSheet.findAll();
-  return routeSheets;
+export const getAllRouteSheets = async (page = 1, limit = 10, user) => {
+  const offset = (page - 1) * limit;
+  // Definir un objeto 'where' según el rol del usuario
+  let whereClause = {};
+  if (user && user.role && user.role.name === "deposito") {
+    // Si el usuario es del depósito, filtrar por su deposito_id
+    whereClause = { deposito_id: user.deposito_id };
+  }
+  
+  // findAndCountAll retorna un objeto con "count" y "rows"
+  const { count, rows } = await RouteSheet.findAndCountAll({
+    where: whereClause,
+    offset,
+    limit,
+    order: [["created_at", "DESC"]],
+  });
+  
+  return {
+    data: rows,
+    meta: {
+      total: count,
+      page,
+      last_page: Math.ceil(count / limit),
+    },
+  };
 };
+
 
 /**
  * Obtiene una hoja de ruta por su ID.
@@ -50,11 +74,16 @@ export const getRouteSheetByCodigo = async (id) => {
  * @returns {Promise<void>}
  * @throws {Object} Error si la validación falla.
  */
-const validateReusableQRCode = async (qrRecord) => {
+const validateReusableQRCode = async (qrRecord, id, sent_at) => {
   if (qrRecord.bulto_id) {
     // Se asume que el bulto tiene un campo route_sheet_id
     const bulto = await Bulto.findByPk(qrRecord.bulto_id);
     if (bulto && bulto.route_sheet_id) {
+      // Si se está modificando el mismo route sheet y aún no se envió, se permite
+      if (bulto.route_sheet_id === id && sent_at == null) {
+        return;
+      }
+      
       const associatedRouteSheet = await RouteSheet.findByPk(bulto.route_sheet_id);
       if (!associatedRouteSheet || !associatedRouteSheet.received_at) {
         throw { status: 400, message: `El código QR ${qrRecord.codigo} ya está asignado a un bulto sin confirmar recepción.` };
@@ -66,6 +95,7 @@ const validateReusableQRCode = async (qrRecord) => {
     }
   }
 };
+
 
 /**
  * Crea la hoja de ruta completa, asociando los códigos QR escaneados a bultos y
@@ -177,6 +207,16 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
       return routeSheet;
     } catch (err) {
       console.error("Error en la creación de la hoja de ruta:", err);
+      // Verificamos si el error contiene una propiedad "errors" (propia de Sequelize)
+      if (err && typeof err === "object" && "errors" in err) {
+        // @ts-ignore
+        const validationErrors = err.errors;
+        if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+          const firstErrorValue = validationErrors[0].value;
+          throw {status: 400, message: `Remito ${firstErrorValue} ya usado en otra hoja de ruta.`}
+        }
+      }
+      // Si no es un error de validación, relanzamos el error original
       throw err;
     }
   });
@@ -190,14 +230,81 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
  * @param {number} id 
  * @param {Object} data 
  */
-export const updateRouteSheet = async (id, data) => {
+export const updateRouteSheet = async (id, updateData) => {
+  // Obtener la hoja de ruta por su id (debes tener implementada esta función)
   const routeSheet = await getRouteSheetById(id);
+  if (!routeSheet) {
+    throw { status: 404, message: "Hoja de ruta no encontrada" };
+  }
   if (routeSheet.sent_at !== null) {
     throw { status: 403, message: "No se puede modificar la hoja de ruta después de enviarla" };
   }
-  await routeSheet.update(data);
-  return routeSheet;
+
+  return await sequelize.transaction(async (t) => {
+    try {
+      // Actualizar el repartidor si se proporciona
+      if (updateData.repartidor_id !== undefined) {
+        routeSheet.repartidor_id = updateData.repartidor_id;
+      }
+
+      // Actualizar remitos asociados:
+      // Se elimina la asociación actual y se crean nuevos
+      await Remito.destroy({ where: { routesheet_id: id }, transaction: t });
+      if (Array.isArray(updateData.remitos) && updateData.remitos.length > 0) {
+        await Promise.all(
+          updateData.remitos.map(async (item) => {
+            await Remito.create(
+              { external_id: item, routesheet_id: id },
+              { transaction: t }
+            );
+          })
+        );
+      }
+
+      // Actualizar la asociación de códigos QR (bultos)
+      if (Array.isArray(updateData.scannedQRCodes) && updateData.scannedQRCodes.length > 0) {
+        for (const qrObj of updateData.scannedQRCodes) {
+          const qrCodeStr = qrObj.codigo;
+          const qrRecord = await QRCode.findByPk(qrCodeStr, { transaction: t });
+          if (!qrRecord) {
+            throw { status: 404, message: `Código QR ${qrCodeStr} no encontrado.` };
+          }
+          
+          // Si el QR ya está asociado a un bulto, verificamos si ese bulto pertenece a la misma hoja de ruta.
+          if (qrRecord.bulto_id) {
+            const existingBulto = await Bulto.findByPk(qrRecord.bulto_id, { transaction: t });
+            if (existingBulto && existingBulto.route_sheet_id === id) {
+              // Se ignora el QR ya que ya está asociado a la hoja de ruta.
+              continue;
+            }
+          }
+          
+          // Valida que el QR pueda reutilizarse (si es necesario)
+          await validateReusableQRCode(qrRecord, id, routeSheet.sent_at);
+          
+          // Crear un nuevo bulto asociado a la hoja de ruta
+          const newBulto = await Bulto.create(
+            { codigo: qrCodeStr, route_sheet_id: id },
+            { transaction: t }
+          );
+          
+          // Actualizar el registro QR para asociar el nuevo bulto
+          await qrRecord.update({ bulto_id: newBulto.id }, { transaction: t });
+        }
+      }
+      
+
+      // Guardar los cambios en la hoja de ruta
+      await routeSheet.save({ transaction: t });
+      return routeSheet;
+    } catch (err) {
+      console.error("Error en la actualización de la hoja de ruta:", err);
+      throw err;
+    }
+  });
 };
+
+
 
 /**
  * Elimina una hoja de ruta (solo si aún no fue enviada).
@@ -221,19 +328,68 @@ export const deleteRouteSheet = async (id) => {
  * @param {number} id 
  * @param {Object} newStateData 
  */
-export const updateRouteSheetState = async (id, newStateData) => {
-  const routeSheet = await getRouteSheetById(id);
+export const updateRouteSheetState = async (codigo, newStateData) => {
+  const routeSheet = await getRouteSheetByCodigo(codigo);
+  if (!routeSheet) {
+    throw { status: 404, message: "Hoja de ruta no encontrada" };
+  }
   if (!newStateData.estado_id) {
-    throw { status: 400, message: ERROR.MISSING_FIELDS || "El campo estado_id es obligatorio" };
+    throw {
+      status: 400,
+      message: ERROR.MISSING_FIELDS || "El campo estado_id es obligatorio",
+    };
   }
-  // Ejemplo de lógica para actualizar timestamps según el nuevo estado.
-  // Supongamos: 1 = "creado", 3 = "sent", 4 = "received".
-  if (newStateData.estado_id === 3 && !routeSheet.sent_at) {
-    newStateData.sent_at = new Date();
+
+  const now = new Date();
+  const currentEstado = routeSheet.estado_id; // Por ejemplo: 1 = Creado, 3 = Enviado, 4 = Recibido
+  const newEstado = newStateData.estado_id;
+
+  // Si se intenta revertir (pasar a un estado menor que el actual)
+  if (newEstado < currentEstado) {
+    // Para estado "Enviado" (3)
+    if (currentEstado === 3 && routeSheet.sent_at) {
+      const sentTime = new Date(routeSheet.sent_at);
+      const diffMinutes = (now - sentTime) / 60000; // diferencia en minutos
+      if (diffMinutes > 10) {
+        throw {
+          status: 400,
+          message: "No se puede revertir el estado 'Enviado' después de 10 minutos.",
+        };
+      }
+    }
+    // Para estado "Recibido" (4)
+    if (currentEstado === 4 && routeSheet.received_at) {
+      const receivedTime = new Date(routeSheet.received_at);
+      const diffMinutes = (now - receivedTime) / 60000;
+      if (diffMinutes > 10) {
+        throw {
+          status: 400,
+          message: "No se puede revertir el estado 'Recibido' después de 10 minutos.",
+        };
+      }
+    }
   }
-  if (newStateData.estado_id === 4 && !routeSheet.received_at) {
-    newStateData.received_at = new Date();
+
+  // Actualizar los timestamps según el nuevo estado:
+  // Si se cambia a "Enviado" (3) y aún no se tiene sent_at, se asigna la fecha actual.
+  if (newEstado === 3 && !routeSheet.sent_at) {
+    newStateData.sent_at = now;
   }
+  // Si se cambia a "Recibido" (4) y aún no se tiene received_at, se asigna la fecha actual.
+  if (newEstado === 4 && !routeSheet.received_at) {
+    newStateData.received_at = now;
+  }
+
+  // Si el nuevo estado es menor a 3, se elimina sent_at.
+  if (newEstado < 3) {
+    newStateData.sent_at = null;
+  }
+  // Si el nuevo estado es menor a 4, se elimina received_at.
+  if (newEstado < 4) {
+    newStateData.received_at = null;
+  }
+
   await routeSheet.update(newStateData);
   return routeSheet;
 };
+

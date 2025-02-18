@@ -14,10 +14,10 @@ import { createRepartidorSucursalSchema } from "../schemas/repartidorSucursal.sc
 const router = express.Router();
 
 // Listar todas las asociaciones (requiere autenticación, acceso restringido si se desea)
-router.get("/", authMiddleware, accessMiddleware(["superadmin"]), getRepartidorSucursales);
+router.get("/", authMiddleware, accessMiddleware(["superadmin", "deposito"]), getRepartidorSucursales);
 
 // Obtener una asociación específica (por user_id y sucursal_id) (requiere autenticación)
-router.get("/:user_id/:sucursal_id", authMiddleware, accessMiddleware(["superadmin"]), getRepartidorSucursalController);
+router.get("/:user_id/:sucursal_id", authMiddleware, accessMiddleware(["superadmin", "deposito"]), getRepartidorSucursalController);
 
 // Crear una nueva asociación (solo para superadmin)
 router.post(

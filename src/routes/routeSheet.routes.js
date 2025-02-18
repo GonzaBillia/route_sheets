@@ -40,7 +40,7 @@ router.post(
 
 // Actualización completa de hoja de ruta (solo para depósito y superadmin)
 router.put(
-  "/:id",
+  "/:codigo",
   authMiddleware,
   accessMiddleware(["deposito", "superadmin"]),
   validate(updateRouteSheetSchema),
@@ -57,9 +57,9 @@ router.delete(
 
 // Actualizar solo el estado de la hoja de ruta (para repartidor, sucursal y superadmin)
 router.put(
-  "/:id/state",
+  "/:codigo/state",
   authMiddleware,
-  accessMiddleware(["repartidor", "sucursal", "superadmin"]),
+  accessMiddleware(["repartidor", "sucursal","deposito", "superadmin"]),
   validate(updateRouteSheetStateSchema),
   updateRouteSheetStateController
 );

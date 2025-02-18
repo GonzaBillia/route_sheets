@@ -1,5 +1,5 @@
 // controllers/remito.controller.js
-import { createRemito, getRemitoById, getAllRemitos, getNumRemitos } from "../services/remito.service.js";
+import { createRemito, getRemitoById, getAllRemitos, getNumRemitos, getRemitosByRouteSheetId, getNumRemitosByDate } from "../services/remito.service.js";
 import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
 import { asyncHandler } from "../utils/handlers/asyncHandler.js";
 import SUCCESS from "../constants/success.js";
@@ -26,6 +26,18 @@ export const getRemito = asyncHandler(async (req, res) => {
   }
 });
 
+// Obtener los remitos filtrados por routesheet_id
+export const getRemitosByRouteSheetIdController = asyncHandler(async (req, res) => {
+  const { routesheetId } = req.params;
+  try {
+    const remitos = await getRemitosByRouteSheetId(routesheetId);
+    return successResponse(res, SUCCESS.DATA_RETRIEVED, remitos, 200);
+  } catch (error) {
+    return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+  }
+});
+
+
 // Obtener todos los remitos
 export const getRemitos = asyncHandler(async (req, res) => {
   try {
@@ -45,6 +57,17 @@ export const getRemitos = asyncHandler(async (req, res) => {
 export const getRemitosController = async (req, res) => {
   try {
     const remitos = await getNumRemitos();
+    return successResponse(res, "Remitos obtenidos correctamente", remitos, 200);
+  } catch (error) {
+    console.error("Error al obtener remitos:", error);
+    return errorResponse(res, "Error al obtener remitos", 500, error);
+  }
+};
+
+export const getRemitosControllerByDate = async (req, res) => {
+  const { date } = req.params
+  try {
+    const remitos = await getNumRemitosByDate(date);
     return successResponse(res, "Remitos obtenidos correctamente", remitos, 200);
   } catch (error) {
     console.error("Error al obtener remitos:", error);

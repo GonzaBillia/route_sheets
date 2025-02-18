@@ -23,7 +23,8 @@ export const updateRouteSheetSchema = Joi.object({
   created_by: Joi.number().integer().optional(),
   repartidor_id: Joi.number().integer().optional(),
   sucursal_id: Joi.number().integer().optional(),
-  remitos: Joi.array().optional()
+  remitos: Joi.array().optional(),
+  scannedQRCodes: Joi.array()
 });
 
 // Esquema para actualizar solo el estado (para repartidor o sucursal)
