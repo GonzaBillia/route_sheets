@@ -43,7 +43,7 @@ router.put(
 router.delete(
   "/:id",
   authMiddleware,
-  accessMiddleware(["superadmin"]),
+  accessMiddleware(["superadmin", "sucursal"]),
   deleteObservationController
 );
 

@@ -22,6 +22,6 @@ router.get("/me", authMiddleware, getInfo);
 
 router.get("/", authMiddleware, accessMiddleware(["superadmin"]), getUsers);
 
-router.get("/repartidores", authMiddleware, accessMiddleware(["deposito"]), getRepartidoresController)
+router.get("/repartidores", authMiddleware, accessMiddleware(["deposito", "sucursal"]), getRepartidoresController)
 
 export default router;
