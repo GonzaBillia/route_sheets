@@ -43,3 +43,24 @@ export const registerUserSchema = Joi.object({
     })
   })
 });
+
+
+export const updateUserSchema = Joi.object({
+  username: Joi.string().max(100).optional().messages({
+    "string.max": "El nombre de usuario debe tener máximo 100 caracteres"
+  }),
+  email: Joi.string().email().max(100).optional().messages({
+    "string.email": "El email debe tener un formato válido",
+    "string.max": "El email debe tener máximo 100 caracteres"
+  }),
+  role_id: Joi.number().optional().messages({
+    "any.only": "El rol debe ser 'superadmin', 'deposito', 'repartidor' o 'sucursal'"
+  }),
+  deposito_id: Joi.number().integer().optional().allow("", null).messages({
+    "number.base": "El identificador del depósito debe ser un número entero"
+  }),
+  sucursal_id: Joi.number().integer().optional().allow("", null).messages({
+    "number.base": "El identificador de la sucursal debe ser un número entero"
+  })
+});
+

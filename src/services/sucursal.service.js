@@ -21,7 +21,8 @@ export const getSucursalesByRepartidorId = async (repartidorId) => {
     include: [
       {
         model: RepartidorSucursal,
-        where: { repartidorId },
+        as: 'repartidorSucursal', // Usa el alias definido en la asociación
+        where: { user_id: repartidorId },
         attributes: [], // Excluye los atributos de la tabla intermedia
       },
     ],

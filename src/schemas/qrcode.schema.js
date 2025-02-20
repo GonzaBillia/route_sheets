@@ -25,8 +25,8 @@ export const createQRCodeSchema = Joi.object({
     "string.max": "El ID del tipo de bulto debe tener máximo 4 caracteres"
   }),
   cantidad: Joi.number().integer().optional(),
-  // bulto_id es opcional, ya que se asigna luego
-  bulto_id: Joi.number().integer().optional()
+
+
 });
 
 export const updateQRCodeSchema = Joi.object({

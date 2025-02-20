@@ -11,6 +11,7 @@ import Observation from './Observation.js';
 import RouteSheet from './RouteSheet.js';
 import QRCode from './QRCode.js';
 import TiposBulto from './TiposBulto.js';
+import BultoRouteSheet from './BultoRouteSheet.js';
 
 // Asociaciones de Users
 User.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
@@ -28,6 +29,33 @@ Sucursal.belongsToMany(User, {
   foreignKey: 'sucursal_id',
   as: 'repartidores'
 });
+
+// Asociación muchos a muchos entre Bulto y RouteSheet usando el historial
+Bulto.belongsToMany(RouteSheet, {
+  through: BultoRouteSheet,
+  as: 'historyRouteSheets',
+  foreignKey: 'bulto_id'
+});
+RouteSheet.belongsToMany(Bulto, {
+  through: BultoRouteSheet,
+  as: 'bultosHistory',
+  foreignKey: 'route_sheet_id'
+});
+
+Sucursal.hasMany(RepartidorSucursal, { foreignKey: 'sucursal_id', as: 'repartidorSucursal' });
+RepartidorSucursal.belongsTo(Sucursal, { foreignKey: 'sucursal_id', as: 'sucursal' });
+
+User.hasMany(RepartidorSucursal, { foreignKey: 'user_id', as: 'repartidorSucursal' });
+RepartidorSucursal.belongsTo(User, { foreignKey: 'user_id', as: 'usuario' });
+
+// Asociación directa de Bulto y BultoRouteSheet
+Bulto.hasMany(BultoRouteSheet, { foreignKey: 'bulto_id', as: 'bultoRouteSheets' });
+BultoRouteSheet.belongsTo(Bulto, { foreignKey: 'bulto_id', as: 'bulto' });
+
+// Asociación directa de RouteSheet y BultoRouteSheet
+RouteSheet.hasMany(BultoRouteSheet, { foreignKey: 'route_sheet_id', as: 'bultoRouteSheets' });
+BultoRouteSheet.belongsTo(RouteSheet, { foreignKey: 'route_sheet_id', as: 'routeSheet' });
+
 
 // Asociaciones de RouteSheet
 RouteSheet.belongsTo(Estado, { foreignKey: 'estado_id', as: 'estado' });
@@ -70,5 +98,6 @@ export {
   Observation,
   RouteSheet,
   QRCode,
-  TiposBulto
+  TiposBulto,
+  BultoRouteSheet
 };

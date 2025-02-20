@@ -38,9 +38,9 @@ import {
   
   // Obtener un código QR por ID
   export const getQRCodeController = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { codigo } = req.params;
     try {
-      const qrCode = await getQRCodeById(id);
+      const qrCode = await getQRCodeById(codigo);
       return successResponse(res, SUCCESS.DATA_RETRIEVED, qrCode, 200);
     } catch (error) {
       return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);

@@ -2,12 +2,14 @@
 import express from "express";
 import {
   getRouteSheets,
-  getRouteSheet,
+  
   createRouteSheetController,
   updateRouteSheetController,
   deleteRouteSheetController,
   updateRouteSheetStateController,
-  getRouteSheetByCodigoController
+  getRouteSheetByCodigoController,
+  getRouteSheetsByDepositoController,
+  getRouteSheetController
 } from "../controllers/routeSheet.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
@@ -24,7 +26,9 @@ const router = express.Router();
 router.get("/", authMiddleware, getRouteSheets);
 
 // Obtener una hoja de ruta por ID (requiere autenticación)
-router.get("/:id", authMiddleware, getRouteSheet);
+router.get("/:id", authMiddleware, getRouteSheetController);
+
+router.get("/deposito/:id", authMiddleware, accessMiddleware(["deposito", "superadmin"]), getRouteSheetsByDepositoController);
 
 // Obtener una hoja de ruta por Codigo (requiere autenticación)
 router.get("/codigo/:id", authMiddleware, getRouteSheetByCodigoController);
@@ -59,7 +63,7 @@ router.delete(
 router.put(
   "/:codigo/state",
   authMiddleware,
-  accessMiddleware(["repartidor", "sucursal","deposito", "superadmin"]),
+  accessMiddleware(["sucursal", "deposito", "superadmin"]),
   validate(updateRouteSheetStateSchema),
   updateRouteSheetStateController
 );

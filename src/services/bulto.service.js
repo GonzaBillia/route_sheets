@@ -1,5 +1,5 @@
 // services/bulto.service.js
-import {Bulto} from "../models/index.models.js";
+import {Bulto, RouteSheet} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 
 /**
@@ -58,9 +58,19 @@ export const getBultoById = async (id) => {
  * @returns {Promise<Array>} Lista de bultos.
  */
 export const getAllBultos = async () => {
-  const bultos = await Bulto.findAll();
+  const bultos = await Bulto.findAll({
+    include: [
+      {
+        model: RouteSheet,
+        as: 'historyRouteSheets',
+        required: false,
+        through: { attributes: ['route_sheet_id','assigned_at', 'active'] }
+      }
+    ]
+  });
   return bultos;
 };
+
 
 /**
  * Actualiza un bulto existente.

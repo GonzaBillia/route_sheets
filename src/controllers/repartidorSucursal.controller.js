@@ -3,7 +3,8 @@ import {
     createRepartidorSucursal,
     getAllRepartidorSucursales,
     getRepartidorSucursal,
-    deleteRepartidorSucursal
+    deleteRepartidorSucursal,
+    getRepartidorSucursalesService
   } from "../services/repartidorSucursal.service.js";
   import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
   import { asyncHandler } from "../utils/handlers/asyncHandler.js";
@@ -35,6 +36,16 @@ import {
     const { user_id, sucursal_id } = req.params;
     try {
       const association = await getRepartidorSucursal(user_id, sucursal_id);
+      return successResponse(res, SUCCESS.DATA_RETRIEVED, association, 200);
+    } catch (error) {
+      return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+    }
+  });
+
+  export const getRepartidorSucursalesController = asyncHandler(async (req, res) => {
+    const { user_id } = req.params;
+    try {
+      const association = await getRepartidorSucursalesService(user_id);
       return successResponse(res, SUCCESS.DATA_RETRIEVED, association, 200);
     } catch (error) {
       return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);

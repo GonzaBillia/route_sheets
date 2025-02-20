@@ -18,7 +18,7 @@ const router = express.Router();
 router.get("/", authMiddleware, getAllQRCodesController);
 
 // Obtener un código QR por ID (requiere autenticación)
-router.get("/:id", authMiddleware, getQRCodeController);
+router.get("/:codigo", authMiddleware, getQRCodeController);
 
 // Crear un código QR (acceso para operador de depósito o superadmin)
 router.post(

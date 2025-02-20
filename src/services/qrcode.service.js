@@ -92,7 +92,7 @@ export const generateBatchQRCodes = async ({ depositCode, depositId, tipoBultoCo
 
   // Inserción masiva en la base de datos
   const createdRecords = await QRCode.bulkCreate(recordsToCreate);
-  return createdRecords;
+  return createdRecords.map(record => record.codigo);
 };
 
 
@@ -102,11 +102,11 @@ export const generateBatchQRCodes = async ({ depositCode, depositId, tipoBultoCo
  * @returns {Promise<Object>} El código QR encontrado.
  * @throws {Object} Error si el ID es inválido o no se encuentra el código.
  */
-export const getQRCodeById = async (id) => {
-  if (!id) {
+export const getQRCodeById = async (codigo) => {
+  if (!codigo) {
     throw { status: 400, message: ERROR.INVALID_ID || "ID inválido" };
   }
-  const qrCode = await QRCode.findByPk(id);
+  const qrCode = await QRCode.findByPk(codigo);
   if (!qrCode) {
     throw { status: 404, message: ERROR.NOT_FOUND || "Código QR no encontrado" };
   }

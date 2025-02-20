@@ -4,7 +4,8 @@ import {
   createRepartidorSucursalController,
   getRepartidorSucursales,
   getRepartidorSucursalController,
-  deleteRepartidorSucursalController
+  deleteRepartidorSucursalController,
+  getRepartidorSucursalesController
 } from "../controllers/repartidorSucursal.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
@@ -18,6 +19,9 @@ router.get("/", authMiddleware, accessMiddleware(["superadmin", "deposito"]), ge
 
 // Obtener una asociación específica (por user_id y sucursal_id) (requiere autenticación)
 router.get("/:user_id/:sucursal_id", authMiddleware, accessMiddleware(["superadmin", "deposito"]), getRepartidorSucursalController);
+
+router.get("/:user_id", authMiddleware, accessMiddleware(["superadmin", "deposito"]), getRepartidorSucursalesController);
+
 
 // Crear una nueva asociación (solo para superadmin)
 router.post(

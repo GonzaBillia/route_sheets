@@ -4,7 +4,8 @@ import {
     getSucursalById, 
     createSucursal, 
     updateSucursal, 
-    deleteSucursal 
+    deleteSucursal, 
+    getSucursalesByRepartidorId
   } from "../services/sucursal.service.js";
   import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
   import { asyncHandler } from "../utils/handlers/asyncHandler.js";
@@ -26,7 +27,7 @@ import {
  * @param {import('express').Request} req - Objeto de petición de Express.
  * @param {import('express').Response} res - Objeto de respuesta de Express.
  */
-export const getSucursalesByRepartidorId = async (req, res) => {
+export const getSucursalesByRepartidorIdController = async (req, res) => {
   const { repartidorId } = req.params;
 
   try {

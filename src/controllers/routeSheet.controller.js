@@ -6,7 +6,8 @@ import {
     updateRouteSheet,
     deleteRouteSheet,
     updateRouteSheetState,
-    getRouteSheetByCodigo
+    getRouteSheetByCodigo,
+    getRouteSheetsByDeposito
   } from "../services/routeSheet.service.js";
   import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
   import { asyncHandler } from "../utils/handlers/asyncHandler.js";
@@ -31,13 +32,23 @@ import {
       );
     }
   });
-  
-  
-  // Obtener una hoja de ruta por ID
-  export const getRouteSheet = asyncHandler(async (req, res) => {
+
+  export const getRouteSheetController = asyncHandler(async (req, res) => {
     const { id } = req.params;
     try {
       const routeSheet = await getRouteSheetById(id);
+      return successResponse(res, SUCCESS.DATA_RETRIEVED, routeSheet, 200);
+    } catch (error) {
+      return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+    }
+  });
+  
+  
+  // Obtener una hoja de ruta por ID
+  export const getRouteSheetsByDepositoController = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+      const routeSheet = await getRouteSheetsByDeposito(id);
       return successResponse(res, SUCCESS.DATA_RETRIEVED, routeSheet, 200);
     } catch (error) {
       return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);

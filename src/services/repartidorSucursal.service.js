@@ -33,6 +33,11 @@ export const getAllRepartidorSucursales = async () => {
   return associations;
 };
 
+export const getRepartidorSucursalesService = async (user_id) => {
+  const associations = await RepartidorSucursal.findAll({where: {user_id: user_id}});
+  return associations;
+};
+
 /**
  * Obtiene una asociación por user_id y sucursal_id.
  * @param {number} user_id - ID del repartidor.

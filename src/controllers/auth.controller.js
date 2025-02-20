@@ -1,5 +1,5 @@
 // controllers/auth.controller.js
-import { registerUser, loginUser, getUserInfo, getAllUsers, getRepartidores } from "../services/auth.service.js";
+import { registerUser, loginUser, getUserInfo, getAllUsers, getRepartidores, deleteUser, updateUser } from "../services/auth.service.js";
 import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
 import SUCCESS from "../constants/success.js";
 import ERROR from "../constants/errors.js";
@@ -99,5 +99,24 @@ export const getRepartidoresController = asyncHandler(async (req, res) => {
     return successResponse(res, SUCCESS.DATA_RETRIEVED, repartidores);
   } catch (error) {
     return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+  }
+});
+
+export const updateUserController = asyncHandler(async (req, res) => {
+
+  try {
+    const updatedUser = await updateUser(req.params.id, req.body);
+    return successResponse(res, "Usuario actualizado correctamente", updatedUser);
+  } catch (err) {
+    return errorResponse(res, err.message);
+  }
+});
+
+export const deleteUserController = asyncHandler(async (req, res) => {
+  try {
+    await deleteUser(req.params.id);
+    return successResponse(res, "Usuario eliminado correctamente");
+  } catch (err) {
+    return errorResponse(res, err.message);
   }
 });

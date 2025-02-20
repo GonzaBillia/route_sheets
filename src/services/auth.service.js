@@ -124,3 +124,20 @@ export const getRepartidores = async () => {
   const users = await User.findAll({ where: { role_id: rol_repartidor.id } });
   return users;
 };
+
+export async function updateUser(id, updateData) {
+  const user = await User.findByPk(id);
+  if (!user) {
+    throw new Error('Usuario no encontrado');
+  }
+  await user.update(updateData);
+  return user;
+}
+
+export async function deleteUser(id) {
+  const user = await User.findByPk(id);
+  if (!user) {
+    throw new Error('Usuario no encontrado');
+  }
+  await user.destroy();
+}

@@ -5,7 +5,8 @@ import {
   getSucursal,
   createSucursalController,
   updateSucursalController,
-  deleteSucursalController
+  deleteSucursalController,
+  getSucursalesByRepartidorIdController
 } from "../controllers/sucursal.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
@@ -18,7 +19,7 @@ const router = express.Router();
 router.get("/", authMiddleware, getSucursales);
 
 // Obtener las sucursales de un repartidor
-router.get("/:repartidorId/sucursales", authMiddleware, accessMiddleware(["deposito"]), getSucursales);
+router.get("/:repartidorId/sucursales", authMiddleware, accessMiddleware(["deposito"]), getSucursalesByRepartidorIdController)
 
 // Obtener una sucursal por ID (requiere autenticación)
 router.get("/:id", authMiddleware, getSucursal);

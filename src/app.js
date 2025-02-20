@@ -51,7 +51,7 @@ app.use("/api/obs", obsRoutes)
 app.use("/api/role", roleRoutes)
 app.use("/api/estado", estadoRoutes)
 app.use("/api/route-sheet", routeSheetRoutes)
-app.use("/api/qr-code", QRCodeRoutes)
+app.use("/api/qrcode", QRCodeRoutes)
 app.use("/api/tipos-bulto", TiposBultoRoutes)
 app.use("/api/pdf", pdfRoutes)
 

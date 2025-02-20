@@ -1,5 +1,5 @@
 import sequelize from "../config/database.js";
-import { RouteSheet, Bulto, QRCode, Remito } from "../models/index.models.js";
+import { RouteSheet, Bulto, QRCode, Remito, BultoRouteSheet } from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 import { errorResponse } from "../utils/handlers/responseHandler.js";
 
@@ -14,7 +14,7 @@ export const getAllRouteSheets = async (page = 1, limit = 10, user) => {
     // Si el usuario es del depósito, filtrar por su deposito_id
     whereClause = { deposito_id: user.deposito_id };
   }
-  
+
   // findAndCountAll retorna un objeto con "count" y "rows"
   const { count, rows } = await RouteSheet.findAndCountAll({
     where: whereClause,
@@ -22,7 +22,7 @@ export const getAllRouteSheets = async (page = 1, limit = 10, user) => {
     limit,
     order: [["created_at", "DESC"]],
   });
-  
+
   return {
     data: rows,
     meta: {
@@ -48,6 +48,18 @@ export const getRouteSheetById = async (id) => {
   }
   return routeSheet;
 };
+
+export const getRouteSheetsByDeposito = async (id) => {
+  if (!id) {
+    throw { status: 400, message: ERROR.INVALID_ID || "ID inválido" };
+  }
+  const routeSheet = await RouteSheet.findAll({ where: { deposito_id: id } });
+  if (!routeSheet) {
+    throw { status: 404, message: ERROR.NOT_FOUND || "Hojas de ruta no encontradas" };
+  }
+  return routeSheet;
+};
+
 
 /**
  * Obtiene una hoja de ruta por su ID.
@@ -83,7 +95,7 @@ const validateReusableQRCode = async (qrRecord, id, sent_at) => {
       if (bulto.route_sheet_id === id && sent_at == null) {
         return;
       }
-      
+
       const associatedRouteSheet = await RouteSheet.findByPk(bulto.route_sheet_id);
       if (!associatedRouteSheet || !associatedRouteSheet.received_at) {
         throw { status: 400, message: `El código QR ${qrRecord.codigo} ya está asignado a un bulto sin confirmar recepción.` };
@@ -158,7 +170,6 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
       // Ejemplo de uso:
       const suffix = generateSuffixFromSum(remitoExternalIds);
       const routeSheetCode = `${depositStr}${sucursalStr}${repartidorStr}-${suffix}`;
-      console.log(routeSheetCode);
       routeSheetData.codigo = routeSheetCode;
 
       // Crear la hoja de ruta
@@ -176,7 +187,7 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
           })
         );
       }
-      
+
 
       // Procesar cada código QR escaneado para crear bultos
       const createdBultoIds = [];
@@ -188,17 +199,54 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
           throw { status: 404, message: `Código QR ${qrCodeStr} no encontrado.` };
         }
         await validateReusableQRCode(qrRecord);
-        const newBulto = await Bulto.create(
-          {
-            codigo: qrCodeStr,
-            route_sheet_id: routeSheet.id
-          },
-          { transaction: t }
-        );
-        createdBultoIds.push(newBulto.id);
-        await qrRecord.update({ bulto_id: newBulto.id }, { transaction: t });
+
+        let bulto;
+        if (qrRecord.bulto_id) {
+          // El bulto ya existe, obtenemos el registro
+          bulto = await Bulto.findByPk(qrRecord.bulto_id, { transaction: t });
+          if (!bulto) {
+            throw { status: 404, message: `Bulto con ID ${qrRecord.bulto_id} no encontrado.` };
+          }
+          // (Opcional) Actualizamos el campo route_sheet_id en Bulto para reflejar la asignación actual
+          await bulto.update({ route_sheet_id: routeSheet.id }, { transaction: t });
+
+          // Marcar como inactiva la asignación previa (si la hubiera)
+          await BultoRouteSheet.update(
+            { active: false },
+            { where: { bulto_id: bulto.id, active: true }, transaction: t }
+          );
+
+          // Crear una nueva asignación en la tabla intermedia
+          await BultoRouteSheet.create(
+            {
+              bulto_id: bulto.id,
+              route_sheet_id: routeSheet.id,
+              assigned_at: new Date(),
+              active: true
+            },
+            { transaction: t }
+          );
+        } else {
+          // Si no existe un bulto asociado, se crea uno nuevo
+          bulto = await Bulto.create(
+            { codigo: qrCodeStr, route_sheet_id: routeSheet.id },
+            { transaction: t }
+          );
+          // Crear la asignación inicial en la tabla intermedia
+          await BultoRouteSheet.create(
+            {
+              bulto_id: bulto.id,
+              route_sheet_id: routeSheet.id,
+              assigned_at: new Date(),
+              active: true
+            },
+            { transaction: t }
+          );
+        }
+        createdBultoIds.push(bulto.id);
+        await qrRecord.update({ bulto_id: bulto.id }, { transaction: t });
       }
-      
+
 
       if (createdBultoIds.length !== scannedQRCodes.length) {
         throw { status: 400, message: "La cantidad de bultos creados no coincide con la cantidad de códigos QR escaneados." };
@@ -213,7 +261,7 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
         const validationErrors = err.errors;
         if (Array.isArray(validationErrors) && validationErrors.length > 0) {
           const firstErrorValue = validationErrors[0].value;
-          throw {status: 400, message: `Remito ${firstErrorValue} ya usado en otra hoja de ruta.`}
+          throw { status: 400, message: `Remito ${firstErrorValue} ya usado en otra hoja de ruta.` }
         }
       }
       // Si no es un error de validación, relanzamos el error original
@@ -269,7 +317,7 @@ export const updateRouteSheet = async (id, updateData) => {
           if (!qrRecord) {
             throw { status: 404, message: `Código QR ${qrCodeStr} no encontrado.` };
           }
-          
+
           // Si el QR ya está asociado a un bulto, verificamos si ese bulto pertenece a la misma hoja de ruta.
           if (qrRecord.bulto_id) {
             const existingBulto = await Bulto.findByPk(qrRecord.bulto_id, { transaction: t });
@@ -278,21 +326,21 @@ export const updateRouteSheet = async (id, updateData) => {
               continue;
             }
           }
-          
+
           // Valida que el QR pueda reutilizarse (si es necesario)
           await validateReusableQRCode(qrRecord, id, routeSheet.sent_at);
-          
+
           // Crear un nuevo bulto asociado a la hoja de ruta
           const newBulto = await Bulto.create(
             { codigo: qrCodeStr, route_sheet_id: id },
             { transaction: t }
           );
-          
+
           // Actualizar el registro QR para asociar el nuevo bulto
           await qrRecord.update({ bulto_id: newBulto.id }, { transaction: t });
         }
       }
-      
+
 
       // Guardar los cambios en la hoja de ruta
       await routeSheet.save({ transaction: t });
