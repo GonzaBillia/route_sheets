@@ -1,4 +1,3 @@
-// models/Bulto.js
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database.js';
 
@@ -18,6 +17,11 @@ Bulto.init(
     route_sheet_id: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    recibido: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   },
   {

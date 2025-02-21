@@ -8,14 +8,31 @@ import { errorResponse } from "../utils/handlers/responseHandler.js";
  */
 export const getAllRouteSheets = async (page = 1, limit = 10, user) => {
   const offset = (page - 1) * limit;
-  // Definir un objeto 'where' según el rol del usuario
   let whereClause = {};
-  if (user && user.role && user.role.name === "deposito") {
-    // Si el usuario es del depósito, filtrar por su deposito_id
-    whereClause = { deposito_id: user.deposito_id };
+
+  if (user && user.role) {
+    const roleName = user.role.toLowerCase();
+    switch (roleName) {
+      case "deposito":
+        // Filtra por deposito_id para usuarios del depósito
+        whereClause = { deposito_id: user.deposito_id };
+        break;
+      case "sucursal":
+        // Filtra por sucursal_id para usuarios de la sucursal
+        whereClause = { sucursal_id: user.sucursal_id };
+        break;
+      case "repartidor":
+        // Filtra por el id del usuario en el campo repartidor_id
+        whereClause = { repartidor_id: user.id };
+        break;
+      case "superadmin":
+      default:
+        // Superadmin u otros: sin restricciones, trae todo
+        whereClause = {};
+        break;
+    }
   }
 
-  // findAndCountAll retorna un objeto con "count" y "rows"
   const { count, rows } = await RouteSheet.findAndCountAll({
     where: whereClause,
     offset,
@@ -32,6 +49,7 @@ export const getAllRouteSheets = async (page = 1, limit = 10, user) => {
     },
   };
 };
+
 
 
 /**
@@ -97,7 +115,7 @@ const validateReusableQRCode = async (qrRecord, id, sent_at) => {
       }
 
       const associatedRouteSheet = await RouteSheet.findByPk(bulto.route_sheet_id);
-      if (!associatedRouteSheet || !associatedRouteSheet.received_at) {
+      if (!associatedRouteSheet || !associatedRouteSheet.received_at || !bulto.recibido) {
         throw { status: 400, message: `El código QR ${qrRecord.codigo} ya está asignado a un bulto sin confirmar recepción.` };
       }
       const hoursDiff = (new Date() - new Date(associatedRouteSheet.received_at)) / (1000 * 3600);
@@ -208,7 +226,7 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
             throw { status: 404, message: `Bulto con ID ${qrRecord.bulto_id} no encontrado.` };
           }
           // (Opcional) Actualizamos el campo route_sheet_id en Bulto para reflejar la asignación actual
-          await bulto.update({ route_sheet_id: routeSheet.id }, { transaction: t });
+          await bulto.update({ route_sheet_id: routeSheet.id, recibido: false }, { transaction: t });
 
           // Marcar como inactiva la asignación previa (si la hubiera)
           await BultoRouteSheet.update(

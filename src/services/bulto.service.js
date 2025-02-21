@@ -1,6 +1,7 @@
 // services/bulto.service.js
 import {Bulto, RouteSheet} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
+import sequelize from "../config/database.js";
 
 /**
  * Crea un nuevo bulto.
@@ -86,6 +87,52 @@ export const updateBulto = async (id, data) => {
   }
   await bulto.update(data);
   return bulto;
+};
+
+export const updateBatchBulto = async (payload) => {
+  if (!Array.isArray(payload)) {
+    throw new Error('El payload debe ser un arreglo');
+  }
+
+  payload.forEach((entry, index) => {
+    if (typeof entry.codigo !== 'string' || entry.codigo.trim() === '') {
+      throw new Error(`El elemento ${index} tiene un código inválido`);
+    }
+    if (typeof entry.recibido !== 'boolean') {
+      throw new Error(`El elemento ${index} debe tener el campo "recibido" de tipo boolean`);
+    }
+  });
+
+  // Ejecuta la transacción para garantizar atomicidad
+  return await sequelize.transaction(async (t) => {
+    // Itera sobre cada entrada del payload y realiza el update
+    for (const { codigo, recibido } of payload) {
+      // Busca el bulto actual en la transacción
+      const bultoActual = await Bulto.findOne({ where: { codigo }, transaction: t });
+      if (!bultoActual) {
+        throw new Error(`No se encontró un bulto con código: ${codigo}`);
+      }
+      // Si el estado actual es igual al deseado, se salta la actualización
+      if (bultoActual.recibido === recibido) {
+        continue;
+      }
+      // Si el estado es distinto, se procede con la actualización
+      const [affectedRows] = await Bulto.update(
+        { recibido },
+        { where: { codigo }, transaction: t }
+      );
+      if (affectedRows === 0) {
+        throw new Error(`No se pudo actualizar el bulto con código: ${codigo}`);
+      }
+    }
+    
+    // Una vez completadas todas las actualizaciones, se retorna la lista de bultos actualizados
+    const updatedBultos = await Bulto.findAll({
+      where: { codigo: payload.map((p) => p.codigo) },
+      transaction: t,
+    });
+    return updatedBultos;
+  });
 };
 
 /**

@@ -19,5 +19,16 @@ export const updateBultoSchema = Joi.object({
   }),
   route_sheet_id: Joi.number().integer().optional().messages({
     "number.base": "El ID de la hoja de ruta debe ser un número"
-  })
+  }),
+  recibido: Joi.bool().optional()
 });
+
+export const updateBatchBultoSchema = Joi.array().items(
+  Joi.object({
+    codigo: Joi.string().max(100).optional().messages({
+      "string.max": "El código debe tener máximo 100 caracteres"
+    }),
+    recibido: Joi.bool().optional()
+  })
+);
+

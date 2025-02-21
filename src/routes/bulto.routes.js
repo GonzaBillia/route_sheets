@@ -6,12 +6,13 @@ import {
   getBultos,
   getBulto,
   updateBultoController,
-  deleteBultoController
+  deleteBultoController,
+  updateBatchBultoController
 } from "../controllers/bulto.controller.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { accessMiddleware } from "../middleware/role.js";
 import { validate } from "../middleware/validate.js";
-import { createBultoSchema, updateBultoSchema } from "../schemas/bulto.schema.js";
+import { createBultoSchema, updateBatchBultoSchema, updateBultoSchema } from "../schemas/bulto.schema.js";
 
 const router = express.Router();
 
@@ -34,6 +35,13 @@ router.post(
   createBultoController
 );
 
+router.put(
+  "/recibido",
+  authMiddleware,
+  accessMiddleware(["sucursal"]),
+  validate(updateBatchBultoSchema),
+  updateBatchBultoController
+);
 // Actualizar un bulto (solo accesible para superadmin)
 router.put(
   "/:id",
@@ -42,6 +50,7 @@ router.put(
   validate(updateBultoSchema),
   updateBultoController
 );
+
 
 // Eliminar un bulto (solo accesible para superadmin)
 router.delete(

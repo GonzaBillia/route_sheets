@@ -5,7 +5,8 @@ import {
     getBultoById, 
     getAllBultos, 
     updateBulto, 
-    deleteBulto 
+    deleteBulto, 
+    updateBatchBulto
   } from "../services/bulto.service.js";
   import { successResponse, errorResponse } from "../utils/handlers/responseHandler.js";
   import { asyncHandler } from "../utils/handlers/asyncHandler.js";
@@ -59,6 +60,15 @@ export const getBultoByCodeController = asyncHandler(async (req, res) => {
     const { id } = req.params;
     try {
       const bulto = await updateBulto(id, req.body);
+      return successResponse(res, SUCCESS.DATA_UPDATED, bulto, 200);
+    } catch (error) {
+      return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);
+    }
+  });
+
+  export const updateBatchBultoController = asyncHandler(async (req, res) => {
+    try {
+      const bulto = await updateBatchBulto(req.body);
       return successResponse(res, SUCCESS.DATA_UPDATED, bulto, 200);
     } catch (error) {
       return errorResponse(res, error.message || ERROR.OPERATION_FAILED, error.status || 500);

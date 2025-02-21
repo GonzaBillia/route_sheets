@@ -28,9 +28,7 @@ export const registerUserSchema = Joi.object({
     then: Joi.number().integer().required().messages({
       "any.required": "El identificador del depósito es obligatorio para usuarios de tipo 'deposito'"
     }),
-    otherwise: Joi.forbidden().messages({
-      "any.unknown": "El campo deposito_id no es permitido para este rol"
-    })
+    otherwise: Joi.valid(null)
   }),
   // Para usuarios de rol "sucursal" se requiere el identificador de la sucursal.
   sucursal_id: Joi.when("role", {
@@ -38,9 +36,7 @@ export const registerUserSchema = Joi.object({
     then: Joi.number().integer().required().messages({
       "any.required": "El identificador de la sucursal es obligatorio para usuarios de tipo 'sucursal'"
     }),
-    otherwise: Joi.forbidden().messages({
-      "any.unknown": "El campo sucursal_id no es permitido para este rol"
-    })
+    otherwise: Joi.valid(null)
   })
 });
 
