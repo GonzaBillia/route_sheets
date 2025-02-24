@@ -26,7 +26,7 @@ import pdfRoutes from "./routes/downloader.routes.js"
 dotenv.config();
 const PORT = process.env.PORT;
 const HOST = process.env.HOST;
-const F_URL = `https://${process.env.F_HOST}:${process.env.F_PORT}`
+const F_URL = `https://${process.env.F_HOST}`
 
 const app = express();
 
