@@ -442,7 +442,7 @@ export const updateRouteSheetState = async (codigo, newStateData) => {
     newStateData.sent_at = now;
   }
   // Si se cambia a "Recibido" (4) y aún no se tiene received_at, se asigna la fecha actual.
-  if (newEstado === 4 && !routeSheet.received_at) {
+  if ((newEstado === 4 || newEstado === 5) && !routeSheet.received_at) {
     newStateData.received_at = now;
   }
 
