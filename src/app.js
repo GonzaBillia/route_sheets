@@ -26,7 +26,7 @@ import pdfRoutes from "./routes/downloader.routes.js"
 dotenv.config();
 const PORT = process.env.PORT;
 const HOST = process.env.HOST;
-const F_URL = `http://${process.env.F_HOST}:${process.env.F_PORT}`
+const F_URL = `https://${process.env.F_HOST}:${process.env.F_PORT}`
 
 const app = express();
 
@@ -70,5 +70,5 @@ app.use((error, req, res) => errorResponse(res, `<h1>Error 500</h1><h3>${ERROR.I
 
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://${HOST}:${PORT}`);
+  console.log(`Servidor corriendo en https://${HOST}:${PORT}`);
 });
