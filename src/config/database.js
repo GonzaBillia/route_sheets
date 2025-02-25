@@ -1,8 +1,15 @@
 // src/config/database.js
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+import path from '../utils/path.js';
+import pth from 'path'
 
-dotenv.config();
+// Define el archivo de entorno según el valor de NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+
+// Carga las variables de entorno del archivo correspondiente
+const envPath = pth.join(path.root, envFile);
+dotenv.config({ path: envPath });
 
 const DB_HOST = process.env.DB_HOST?.trim();
 const DB_PORT = process.env.DB_PORT ? Number(process.env.DB_PORT.trim()) : 3306;

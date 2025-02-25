@@ -29,13 +29,13 @@ const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.en
 // Carga las variables de entorno del archivo correspondiente
 const envPath = pth.join(path.root, envFile);
 dotenv.config({ path: envPath });
-
+const CORS = process.env.CORS_ORIGIN
 const app = express();
 
 // Middlewares
 app.use(cors({
     credentials: true,
-    origin: process.env.CORS_ORIGIN
+    origin: CORS
 }));
 
 app.use(cookieParser());
