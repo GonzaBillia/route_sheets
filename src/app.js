@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser"
+import pth from "path"
 import path from "./utils/path.js";
 import SUCCESS from "./constants/success.js";
 import ERROR from "./constants/errors.js";
@@ -22,19 +23,21 @@ import QRCodeRoutes from "./routes/qrcode.routes.js"
 import TiposBultoRoutes from "./routes/tiposBulto.routes.js"
 import pdfRoutes from "./routes/downloader.routes.js"
 
-// Cargar variables de entorno
-dotenv.config();
-const PORT = process.env.PORT;
-const HOST = process.env.HOST;
-const F_URL = `https://${process.env.F_HOST}`
+// Define el archivo de entorno según el valor de NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+
+// Carga las variables de entorno del archivo correspondiente
+const envPath = pth.join(path.root, envFile);
+dotenv.config({ path: envPath });
 
 const app = express();
 
 // Middlewares
 app.use(cors({
     credentials: true,
-    origin: F_URL
+    origin: process.env.CORS_ORIGIN
 }));
+
 app.use(cookieParser());
 app.use(express.json()); // Para manejar JSON en requests
 app.use(express.urlencoded({ extended: true }));
@@ -69,6 +72,6 @@ app.use("*", (req, res) => errorResponse(res, `<h1>Error 404</h1><h3>${ERROR.NOT
 app.use((error, req, res) => errorResponse(res, `<h1>Error 500</h1><h3>${ERROR.INTERNAL_SERVER}</h3>`, 500, error));
 
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en https://${HOST}:${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Servidor corriendo en ${process.env.BACKEND_URL}`);
 });
