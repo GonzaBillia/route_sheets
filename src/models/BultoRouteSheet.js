@@ -1,4 +1,3 @@
-// models/BultoRouteSheet.js
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database.js';
 
@@ -35,11 +34,22 @@ BultoRouteSheet.init(
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
-    // (Opcional) Indicador de si es la asignación actual
+    // Indicador de si es la asignación actual
     active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    // Nueva columna para la fecha de entrega
+    delivered_at: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    // Nueva columna para indicar si se recibió
+    received: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   },
   {

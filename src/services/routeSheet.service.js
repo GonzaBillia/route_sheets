@@ -107,24 +107,54 @@ export const getRouteSheetByCodigo = async (id) => {
 const validateReusableQRCode = async (qrRecord, id, sent_at) => {
   if (qrRecord.bulto_id) {
     // Se asume que el bulto tiene un campo route_sheet_id
-    const bulto = await Bulto.findByPk(qrRecord.bulto_id);
-    if (bulto && bulto.route_sheet_id) {
-      // Si se está modificando el mismo route sheet y aún no se envió, se permite
-      if (bulto.route_sheet_id === id && sent_at == null) {
-        return;
-      }
-
-      const associatedRouteSheet = await RouteSheet.findByPk(bulto.route_sheet_id);
-      if (!associatedRouteSheet || !associatedRouteSheet.received_at || !bulto.recibido) {
-        throw { status: 400, message: `El código QR ${qrRecord.codigo} ya está asignado a un bulto sin confirmar recepción.` };
-      }
-      const hoursDiff = (new Date() - new Date(associatedRouteSheet.received_at)) / (1000 * 3600);
-      if (hoursDiff < 12) {
-        throw { status: 400, message: `El código QR ${qrRecord.codigo} fue asignado hace menos de 12 horas. Revise si es un duplicado.` };
-      }
+    const bulto = await Bulto.findByPk(id, {
+      include: [
+        {
+          model: RouteSheet,
+          as: 'historyRouteSheets',
+          required: false,
+          through: { attributes: ['route_sheet_id', 'assigned_at', 'active', 'received', 'delivered_at'] }
+        }
+      ]
+    });
+    
+    if (!bulto) {
+      throw { status: 404, message: "Bulto no encontrado." };
+    }
+    
+    // Si el bulto se está modificando en el mismo route sheet y aún no se envió, se permite
+    if (bulto.route_sheet_id === id && sent_at == null) {
+      return;
+    }
+    
+    // Ordenar el historial para obtener el registro más reciente según assigned_at
+    let lastHistory;
+    if (bulto.historyRouteSheets && Array.isArray(bulto.historyRouteSheets) && bulto.historyRouteSheets.length > 0) {
+      lastHistory = bulto.historyRouteSheets.sort((a, b) =>
+        new Date(b.BultoRouteSheet.assigned_at) - new Date(a.BultoRouteSheet.assigned_at)
+      )[0];
+    }
+    
+    // Valida que exista un último registro y que esté confirmado (received === true)
+    // y que el bulto tenga su propiedad 'recibido' (según la lógica actual)
+    if (!lastHistory || !lastHistory.BultoRouteSheet.received) {
+      throw {
+        status: 400,
+        message: `El código QR ${qrRecord.codigo} ya está asignado a un bulto sin confirmar recepción.`
+      };
+    }
+    
+    
+    const hoursDiff = (new Date() - new Date(lastHistory.BultoRouteSheet.delivered_at)) / (1000 * 3600);
+    if (hoursDiff < 12) {
+      throw {
+        status: 400,
+        message: `El código QR ${qrRecord.codigo} fue asignado hace menos de 12 horas. Revise si es un duplicado.`
+      };
     }
   }
 };
+
 
 
 /**

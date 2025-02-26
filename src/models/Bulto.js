@@ -17,12 +17,8 @@ Bulto.init(
     route_sheet_id: {
       type: DataTypes.INTEGER,
       allowNull: false
-    },
-    recibido: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
     }
+    // Se eliminó la propiedad "recibido"
   },
   {
     sequelize,

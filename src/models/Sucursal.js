@@ -1,4 +1,3 @@
-// models/Sucursal.js
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database.js';
 
@@ -21,6 +20,11 @@ Sucursal.init(
     },
     telefono: {
       type: DataTypes.STRING(20)
+    },
+    // Nueva columna para el código
+    codigo: {
+      type: DataTypes.STRING(10),
+      allowNull: true
     }
   },
   {

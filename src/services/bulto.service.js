@@ -1,5 +1,5 @@
 // services/bulto.service.js
-import {Bulto, RouteSheet} from "../models/index.models.js";
+import {Bulto, BultoRouteSheet, RouteSheet} from "../models/index.models.js";
 import ERROR from "../constants/errors.js";
 import sequelize from "../config/database.js";
 
@@ -30,7 +30,16 @@ export const getBultoByCode = async (code) => {
     if (!code) {
       throw { status: 400, message: ERROR.MISSING_FIELDS || "El código es obligatorio" };
     }
-    const bulto = await Bulto.findOne({ where: { codigo: code } });
+    const bulto = await Bulto.findOne({ where: { codigo: code },
+      include: [
+        {
+          model: RouteSheet,
+          as: 'historyRouteSheets',
+          required: false,
+          through: { attributes: ['route_sheet_id','assigned_at', 'active', 'received', 'delivered_at'] }
+        }
+      ]
+     });
     if (!bulto) {
       throw { status: 404, message: ERROR.NOT_FOUND || "Bulto no encontrado" };
     }
@@ -47,7 +56,16 @@ export const getBultoById = async (id) => {
   if (!id || isNaN(id)) {
     throw { status: 400, message: ERROR.INVALID_ID || "ID inválido" };
   }
-  const bulto = await Bulto.findByPk(id);
+  const bulto = await Bulto.findByPk(id, {
+    include: [
+      {
+        model: RouteSheet,
+        as: 'historyRouteSheets',
+        required: false,
+        through: { attributes: ['route_sheet_id','assigned_at', 'active', 'received', 'delivered_at'] }
+      }
+    ]
+  });
   if (!bulto) {
     throw { status: 404, message: ERROR.NOT_FOUND || "Bulto no encontrado" };
   }
@@ -65,7 +83,7 @@ export const getAllBultos = async () => {
         model: RouteSheet,
         as: 'historyRouteSheets',
         required: false,
-        through: { attributes: ['route_sheet_id','assigned_at', 'active'] }
+        through: { attributes: ['route_sheet_id','assigned_at', 'active', 'received', 'delivered_at'] }
       }
     ]
   });
@@ -103,37 +121,69 @@ export const updateBatchBulto = async (payload) => {
     }
   });
 
-  // Ejecuta la transacción para garantizar atomicidad
   return await sequelize.transaction(async (t) => {
-    // Itera sobre cada entrada del payload y realiza el update
     for (const { codigo, recibido } of payload) {
-      // Busca el bulto actual en la transacción
+      // Buscar el bulto por su código
       const bultoActual = await Bulto.findOne({ where: { codigo }, transaction: t });
       if (!bultoActual) {
         throw new Error(`No se encontró un bulto con código: ${codigo}`);
       }
+
+      // Buscar la fila correspondiente en BultoRouteSheet usando el id del bulto y su route_sheet_id
+      const routeSheetEntry = await BultoRouteSheet.findOne({
+        where: {
+          bulto_id: bultoActual.id,
+          route_sheet_id: bultoActual.route_sheet_id
+        },
+        transaction: t
+      });
+
+      if (!routeSheetEntry) {
+        throw new Error(`No se encontró la entrada en BultoRouteSheet para el bulto con código: ${codigo}`);
+      }
+
       // Si el estado actual es igual al deseado, se salta la actualización
-      if (bultoActual.recibido === recibido) {
+      if (routeSheetEntry.received === recibido) {
         continue;
       }
-      // Si el estado es distinto, se procede con la actualización
-      const [affectedRows] = await Bulto.update(
-        { recibido },
-        { where: { codigo }, transaction: t }
-      );
+
+      // Definir los campos a actualizar
+      const updateData = { received: recibido };
+      // Si el cambio es de false a true, actualizar delivered_at con el timestamp actual
+      if (!routeSheetEntry.received && recibido) {
+        updateData.delivered_at = new Date();
+      }
+
+      // Actualizar la fila de BultoRouteSheet
+      const [affectedRows] = await BultoRouteSheet.update(updateData, {
+        where: {
+          bulto_id: bultoActual.id,
+          route_sheet_id: bultoActual.route_sheet_id
+        },
+        transaction: t
+      });
+
       if (affectedRows === 0) {
-        throw new Error(`No se pudo actualizar el bulto con código: ${codigo}`);
+        throw new Error(`No se pudo actualizar la entrada en BultoRouteSheet para el bulto con código: ${codigo}`);
       }
     }
-    
-    // Una vez completadas todas las actualizaciones, se retorna la lista de bultos actualizados
-    const updatedBultos = await Bulto.findAll({
-      where: { codigo: payload.map((p) => p.codigo) },
-      transaction: t,
+
+    // Al finalizar, se retorna la lista de entradas actualizadas en BultoRouteSheet
+    const updatedEntries = await BultoRouteSheet.findAll({
+      where: {
+        // Se filtran usando los códigos del payload
+        bulto_id: (await Bulto.findAll({
+          where: { codigo: payload.map((p) => p.codigo) },
+          attributes: ['id'],
+          transaction: t
+        })).map(b => b.id)
+      },
+      transaction: t
     });
-    return updatedBultos;
+    return updatedEntries;
   });
 };
+
 
 /**
  * Elimina un bulto.

@@ -1,4 +1,3 @@
-// models/RouteSheet.js
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database.js';
 
@@ -30,6 +29,11 @@ RouteSheet.init(
       allowNull: true
     },
     received_at: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    // Nueva columna para indicar recepción incompleta
+    received_incomplete_at: {
       type: DataTypes.DATE,
       allowNull: true
     },
