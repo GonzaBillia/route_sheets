@@ -106,6 +106,7 @@ export const getRouteSheetByCodigo = async (id) => {
  */
 const validateReusableQRCode = async (qrRecord, id, sent_at) => {
   if (qrRecord.bulto_id) {
+    console.log(qrRecord)
     // Se asume que el bulto tiene un campo route_sheet_id
     const bulto = await Bulto.findByPk(id, {
       include: [
@@ -117,7 +118,6 @@ const validateReusableQRCode = async (qrRecord, id, sent_at) => {
         }
       ]
     });
-    
     if (!bulto) {
       throw { status: 404, message: "Bulto no encontrado." };
     }
@@ -246,7 +246,7 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
         if (!qrRecord) {
           throw { status: 404, message: `Código QR ${qrCodeStr} no encontrado.` };
         }
-        await validateReusableQRCode(qrRecord);
+        await validateReusableQRCode(qrRecord, routeSheet.id, null);
 
         let bulto;
         if (qrRecord.bulto_id) {
