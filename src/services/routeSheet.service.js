@@ -246,7 +246,7 @@ export const createRouteSheet = async (routeSheetData, scannedQRCodes, sessionUs
         if (!qrRecord) {
           throw { status: 404, message: `Código QR ${qrCodeStr} no encontrado.` };
         }
-        await validateReusableQRCode(qrRecord, routeSheet.id, null);
+        await validateReusableQRCode(qrRecord, qrRecord.bulto_id, null);
 
         let bulto;
         if (qrRecord.bulto_id) {
